@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Калькулятор себестоимости поездки</title>
+    <title>Taxi Cost Calculator</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono:wght@400;700&display=swap');
         
@@ -15,7 +16,6 @@
             --font-size: 16px;
             --font-size-large: 18px;
             --font-size-xlarge: 22px;
-            --font-size-xxlarge: 26px;
         }
         
         * {
@@ -36,20 +36,29 @@
             flex-direction: column;
         }
         
+        .container {
+            display: none; /* Сначала скрываем контент */
+        }
+        
+        .auth-container {
+            text-align: center;
+            margin: auto;
+            padding: 20px;
+            max-width: 300px;
+        }
+        
         h1 {
             text-align: center;
             font-size: var(--font-size-xlarge);
             margin: 10px 0;
             color: var(--taxi-yellow);
             text-shadow: var(--neon-glow);
-            position: relative;
-            line-height: 1.2;
         }
         
-        h1::after {
-            content: "▋";
-            animation: blink 1s step-end infinite;
-            margin-left: 3px;
+        .welcome-message {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-bottom: 1px dashed var(--matrix-green);
         }
         
         .calculator {
@@ -84,12 +93,6 @@
             font-family: 'Ubuntu Mono', monospace;
         }
         
-        input:focus {
-            outline: none;
-            border-color: var(--taxi-yellow);
-            box-shadow: 0 0 8px var(--taxi-yellow);
-        }
-        
         button {
             background-color: var(--matrix-dark);
             color: var(--matrix-green);
@@ -100,12 +103,6 @@
             width: 100%;
             font-family: 'Ubuntu Mono', monospace;
             margin-top: 10px;
-            text-transform: uppercase;
-        }
-        
-        button:hover {
-            background-color: var(--matrix-green);
-            color: var(--matrix-dark);
         }
         
         .result {
@@ -116,110 +113,213 @@
             display: none;
         }
         
-        .result h3 {
-            color: var(--taxi-yellow);
-            margin-top: 0;
-            font-size: var(--font-size-large);
+        .history {
+            margin-top: 15px;
+            border-top: 1px dashed var(--matrix-green);
+            padding-top: 10px;
         }
         
-        .result p, .result li {
-            font-size: var(--font-size);
-            margin: 8px 0;
+        .history-item {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+            cursor: pointer;
         }
         
-        #totalCost {
-            font-size: var(--font-size-large);
-            color: var(--taxi-yellow);
-        }
-        
-        .taxi-stripe {
-            height: 8px;
-            background: repeating-linear-gradient(
-                45deg,
-                var(--taxi-yellow),
-                var(--taxi-yellow) 15px,
-                var(--matrix-dark) 15px,
-                var(--matrix-dark) 30px
-            );
-            margin: 10px 0;
-        }
-        
-        .taxi-badge {
-            background-color: var(--taxi-yellow);
-            color: black;
-            padding: 3px 6px;
-            font-size: 12px;
-            display: inline-block;
-            transform: rotate(-5deg);
-            margin-left: 5px;
-        }
-        
-        @keyframes blink {
-            50% { opacity: 0; }
-        }
-        
-        /* Адаптация для очень маленьких экранов */
-        @media (max-width: 360px) {
-            :root {
-                --font-size: 14px;
-                --font-size-large: 16px;
-                --font-size-xlarge: 20px;
-            }
-            
-            input, button {
-                padding: 10px;
-            }
+        .history-item:hover {
+            background-color: rgba(0, 255, 65, 0.1);
         }
     </style>
 </head>
 <body>
-    <h1>LiveTaxi калькулятор<span class="taxi-badge">TAXI</span></h1>
-    
-    <div class="taxi-stripe"></div>
-    
-    <div class="calculator">
-        <div class="form-group">
-            <label for="distance">↳ Расстояние (км):</label>
-            <input type="number" id="distance" placeholder="Введите километраж">
-        </div>
-        
-        <div class="form-group">
-            <label for="fuelConsumption">↳ Расход топлива (л/100км):</label>
-            <input type="number" id="fuelConsumption" placeholder="Например: 8.5" step="0.1">
-        </div>
-        
-        <div class="form-group">
-            <label for="fuelPrice">↳ Цена топлива (руб/литр):</label>
-            <input type="number" id="fuelPrice" placeholder="Например: 52.30" step="0.01">
-        </div>
-        
-        <div class="form-group">
-            <label for="depreciation">↳ Амортизация (руб/км):</label>
-            <input type="number" id="depreciation" placeholder="Например: 5.50" step="0.01">
-        </div>
-        
-        <div class="form-group">
-            <label for="additionalCosts">↳ Доп. расходы (руб):</label>
-            <input type="number" id="additionalCosts" placeholder="Платные дороги..." step="0.01" value="0">
-        </div>
-        
-        <button onclick="calculateTripCost()">Рассчитать</button>
-        
-        <div id="result" class="result">
-            <h3>Результат:</h3>
-            <p>↳ Общая стоимость: <span id="totalCost">0</span> ₽</p>
-            <p>↳ Детализация:</p>
-            <ul>
-                <li>Топливо: <span id="fuelCost">0</span> ₽</li>
-                <li>Амортизация: <span id="depreciationCost">0</span> ₽</li>
-                <li>Доп. расходы: <span id="additionalCostsDisplay">0</span> ₽</li>
-            </ul>
+    <div class="auth-container" id="auth-section">
+        <h1>Taxi Cost Calculator</h1>
+        <div id="auth-button">
+            <button onclick="loginWithTelegram()">Войти через Telegram</button>
+            <div style="margin-top: 10px;">
+                <input type="checkbox" id="remember-me" checked>
+                <label for="remember-me">Запомнить меня</label>
+            </div>
         </div>
     </div>
-    
-    <div class="taxi-stripe"></div>
-    
+
+    <div class="container" id="app-content">
+        <div class="welcome-message">
+            <h1>Привет, <span id="username"></span>!</h1>
+            <p>Рассчитайте стоимость вашей поездки</p>
+        </div>
+        
+        <div class="calculator">
+            <div class="form-group">
+                <label for="distance">Расстояние (км):</label>
+                <input type="number" id="distance" placeholder="Введите километраж">
+            </div>
+            
+            <div class="form-group">
+                <label for="fuelConsumption">Расход топлива (л/100км):</label>
+                <input type="number" id="fuelConsumption" placeholder="Например: 8.5" step="0.1">
+            </div>
+            
+            <div class="form-group">
+                <label for="fuelPrice">Цена топлива (руб/литр):</label>
+                <input type="number" id="fuelPrice" placeholder="Например: 52.30" step="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label for="depreciation">Амортизация (руб/км):</label>
+                <input type="number" id="depreciation" placeholder="Например: 5.50" step="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label for="additionalCosts">Доп. расходы (руб):</label>
+                <input type="number" id="additionalCosts" placeholder="Платные дороги..." step="0.01" value="0">
+            </div>
+            
+            <button onclick="calculateTripCost()">Рассчитать</button>
+            <button onclick="logout()" style="background-color: #3a0d0d; border-color: #ff3d3d;">Выйти</button>
+            
+            <div id="result" class="result">
+                <h3>Результат:</h3>
+                <p>Общая стоимость: <span id="totalCost">0</span> ₽</p>
+                <p>Детализация:</p>
+                <ul>
+                    <li>Топливо: <span id="fuelCost">0</span> ₽</li>
+                    <li>Амортизация: <span id="depreciationCost">0</span> ₽</li>
+                    <li>Доп. расходы: <span id="additionalCostsDisplay">0</span> ₽</li>
+                </ul>
+            </div>
+            
+            <div class="history" id="history-section" style="display: none;">
+                <h3>История расчетов:</h3>
+                <div id="history-list"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeAuth();
+        });
+
+        // ==================== АВТОРИЗАЦИЯ ====================
+        function initializeAuth() {
+            // Проверяем данные WebApp (если внутри Telegram)
+            if (window.Telegram?.WebApp?.initData) {
+                handleTelegramWebApp();
+                return;
+            }
+
+            // Проверяем сохранённую сессию
+            checkSavedSession();
+        }
+
+        function handleTelegramWebApp() {
+            const tg = Telegram.WebApp;
+            const user = tg.initDataUnsafe?.user;
+            
+            if (user) {
+                tg.expand();
+                tg.ready();
+                
+                // Сохраняем сессию
+                const sessionData = {
+                    user: user,
+                    isWebApp: true,
+                    authDate: tg.initDataUnsafe.auth_date
+                };
+                localStorage.setItem('tg_auth', JSON.stringify(sessionData));
+                
+                showAppContent(user.first_name || 'Пользователь');
+                loadLastCalculation();
+            } else {
+                showAuthButton();
+            }
+        }
+
+        function checkSavedSession() {
+            const savedAuth = localStorage.getItem('tg_auth');
+            if (!savedAuth) {
+                showAuthButton();
+                return;
+            }
+
+            const session = JSON.parse(savedAuth);
+            
+            // Проверяем срок действия сессии (30 дней)
+            const sessionExpired = session.authDate && 
+                (Date.now() / 1000 - session.authDate) > 30 * 24 * 60 * 60;
+            
+            if (!sessionExpired) {
+                showAppContent(session.user.first_name || 'Пользователь');
+                loadLastCalculation();
+            } else {
+                localStorage.removeItem('tg_auth');
+                showAuthButton();
+            }
+        }
+
+        function showAppContent(username) {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+            document.getElementById('username').textContent = username;
+        }
+
+        function showAuthButton() {
+            document.getElementById('auth-section').style.display = 'block';
+            document.getElementById('app-content').style.display = 'none';
+        }
+
+        function loginWithTelegram() {
+            const botId = "7474644739:AAE7YQNPDBmvIdOeKLrrb3j42zjvFL1w4Bs"; // Замените на цифровой ID бота
+            
+            // Если внутри Telegram Mini App
+            if (window.Telegram?.WebApp) {
+                Telegram.WebApp.openTelegramLink(
+                    `https://oauth.telegram.org/auth?bot_id=${botId}&origin=${
+                        encodeURIComponent(window.location.origin)
+                    }&request_access=write`
+                );
+                return;
+            }
+            
+            // Для обычного браузера
+            const authUrl = `https://oauth.telegram.org/auth?bot_id=${botId}&origin=${
+                encodeURIComponent(window.location.origin)
+            }&embed=1&request_access=write`;
+            
+            const authWindow = window.open(authUrl, 'TelegramAuth', 'width=500,height=600');
+            
+            window.addEventListener('message', (event) => {
+                if (event.origin !== 'https://oauth.telegram.org') return;
+                
+                if (event.data?.event === 'auth_result' && event.data?.result === 'success') {
+                    const user = event.data.user;
+                    
+                    // Сохраняем сессию, если отмечено "Запомнить меня"
+                    if (document.getElementById('remember-me').checked) {
+                        const sessionData = {
+                            user: user,
+                            isWebApp: false,
+                            authDate: Math.floor(Date.now() / 1000)
+                        };
+                        localStorage.setItem('tg_auth', JSON.stringify(sessionData));
+                    }
+                    
+                    showAppContent(user.first_name || 'Пользователь');
+                    loadLastCalculation();
+                    if (authWindow) authWindow.close();
+                }
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('tg_auth');
+            localStorage.removeItem('last_calculation');
+            showAuthButton();
+        }
+
+        // ==================== КАЛЬКУЛЯТОР ====================
         function calculateTripCost() {
             // Получаем значения из формы
             const distance = parseFloat(document.getElementById('distance').value);
@@ -239,17 +339,94 @@
             const depreciationCost = depreciation * distance;
             const totalCost = fuelCost + depreciationCost + additionalCosts;
             
+            // Сохраняем текущий расчет
+            const calculation = {
+                distance,
+                fuelConsumption,
+                fuelPrice,
+                depreciation,
+                additionalCosts,
+                totalCost,
+                timestamp: new Date().getTime()
+            };
+            
+            saveCalculation(calculation);
+            
             // Выводим результат
-            document.getElementById('fuelCost').textContent = fuelCost.toFixed(2);
-            document.getElementById('depreciationCost').textContent = depreciationCost.toFixed(2);
-            document.getElementById('additionalCostsDisplay').textContent = additionalCosts.toFixed(2);
-            document.getElementById('totalCost').textContent = totalCost.toFixed(2);
+            showResult(calculation);
+        }
+
+        function saveCalculation(calculation) {
+            // Сохраняем последний расчет
+            localStorage.setItem('last_calculation', JSON.stringify(calculation));
             
-            // Показываем блок с результатами
+            // Добавляем в историю
+            let history = JSON.parse(localStorage.getItem('calculation_history') || [];
+            history.unshift(calculation);
+            
+            // Ограничиваем историю 10 последними записями
+            if (history.length > 10) {
+                history = history.slice(0, 10);
+            }
+            
+            localStorage.setItem('calculation_history', JSON.stringify(history));
+            updateHistoryList(history);
+        }
+
+        function loadLastCalculation() {
+            const lastCalc = localStorage.getItem('last_calculation');
+            if (lastCalc) {
+                const calculation = JSON.parse(lastCalc);
+                fillForm(calculation);
+                
+                // Показываем историю, если есть
+                const history = JSON.parse(localStorage.getItem('calculation_history') || [];
+                if (history.length > 0) {
+                    updateHistoryList(history);
+                    document.getElementById('history-section').style.display = 'block';
+                }
+            }
+        }
+
+        function fillForm(calculation) {
+            document.getElementById('distance').value = calculation.distance;
+            document.getElementById('fuelConsumption').value = calculation.fuelConsumption;
+            document.getElementById('fuelPrice').value = calculation.fuelPrice;
+            document.getElementById('depreciation').value = calculation.depreciation;
+            document.getElementById('additionalCosts').value = calculation.additionalCosts;
+        }
+
+        function showResult(calculation) {
+            document.getElementById('fuelCost').textContent = calculation.fuelCost.toFixed(2);
+            document.getElementById('depreciationCost').textContent = calculation.depreciationCost.toFixed(2);
+            document.getElementById('additionalCostsDisplay').textContent = calculation.additionalCosts.toFixed(2);
+            document.getElementById('totalCost').textContent = calculation.totalCost.toFixed(2);
+            
             document.getElementById('result').style.display = 'block';
+            document.getElementById('history-section').style.display = 'block';
             
-            // Прокручиваем к результату
             document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateHistoryList(history) {
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            
+            history.forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div>${new Date(item.timestamp).toLocaleString()}</div>
+                    <div>${item.distance} км → ${item.totalCost.toFixed(2)} ₽</div>
+                `;
+                
+                historyItem.onclick = () => {
+                    fillForm(item);
+                    showResult(item);
+                };
+                
+                historyList.appendChild(historyItem);
+            });
         }
     </script>
 </body>
