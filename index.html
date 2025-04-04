@@ -34,17 +34,21 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-        }
-        
-        .container {
-            display: none;
+            justify-content: center;
         }
         
         .auth-container {
             text-align: center;
-            margin: auto;
+            margin: 0 auto;
             padding: 20px;
             max-width: 300px;
+            border: 1px solid var(--matrix-green);
+            box-shadow: var(--neon-glow);
+            border-radius: 5px;
+        }
+        
+        .container {
+            display: none;
         }
         
         h1 {
@@ -55,9 +59,106 @@
             text-shadow: var(--neon-glow);
         }
         
-        /* Остальные стили остаются без изменений */
-        /* ... */
+        button {
+            background-color: var(--matrix-dark);
+            color: var(--matrix-green);
+            border: 1px solid var(--matrix-green);
+            padding: 12px;
+            font-size: var(--font-size);
+            cursor: pointer;
+            width: 100%;
+            font-family: 'Ubuntu Mono', monospace;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
         
+        button:hover {
+            background-color: rgba(0, 255, 65, 0.1);
+            box-shadow: var(--neon-glow);
+        }
+        
+        .remember-me {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #remember-me {
+            margin-right: 10px;
+        }
+        
+        .logout-btn {
+            background-color: rgba(255, 0, 0, 0.2);
+            border-color: #ff3d3d;
+        }
+        
+        .logout-btn:hover {
+            background-color: rgba(255, 0, 0, 0.3);
+        }
+        
+        /* Стили для основного контента */
+        .welcome-message {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-bottom: 1px dashed var(--matrix-green);
+        }
+        
+        .calculator {
+            background-color: rgba(13, 2, 8, 0.9);
+            border: 1px solid var(--matrix-green);
+            box-shadow: var(--neon-glow);
+            padding: 15px;
+            border-radius: 3px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: var(--font-size);
+            color: var(--taxi-yellow);
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            font-size: var(--font-size);
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--matrix-green);
+            color: var(--matrix-green);
+            border-radius: 0;
+            font-family: 'Ubuntu Mono', monospace;
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-left: 3px solid var(--taxi-yellow);
+            display: none;
+        }
+        
+        .history {
+            margin-top: 15px;
+            border-top: 1px dashed var(--matrix-green);
+            padding-top: 10px;
+        }
+        
+        .history-item {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+            cursor: pointer;
+        }
+        
+        .history-item:hover {
+            background-color: rgba(0, 255, 65, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -65,7 +166,7 @@
         <h1>Taxi Cost Calculator</h1>
         <div id="auth-button">
             <button onclick="loginWithTelegram()">Войти через Telegram</button>
-            <div style="margin-top: 10px;">
+            <div class="remember-me">
                 <input type="checkbox" id="remember-me" checked>
                 <label for="remember-me">Запомнить меня</label>
             </div>
@@ -73,8 +174,56 @@
     </div>
 
     <div class="container" id="app-content">
-        <!-- Контент приложения остается без изменений -->
-        <!-- ... -->
+        <div class="welcome-message">
+            <h1>Привет, <span id="username"></span>!</h1>
+            <p>Рассчитайте стоимость вашей поездки</p>
+        </div>
+        
+        <div class="calculator">
+            <div class="form-group">
+                <label for="distance">Расстояние (км):</label>
+                <input type="number" id="distance" placeholder="Введите километраж">
+            </div>
+            
+            <div class="form-group">
+                <label for="fuelConsumption">Расход топлива (л/100км):</label>
+                <input type="number" id="fuelConsumption" placeholder="Например: 8.5" step="0.1">
+            </div>
+            
+            <div class="form-group">
+                <label for="fuelPrice">Цена топлива (руб/литр):</label>
+                <input type="number" id="fuelPrice" placeholder="Например: 52.30" step="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label for="depreciation">Амортизация (руб/км):</label>
+                <input type="number" id="depreciation" placeholder="Например: 5.50" step="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label for="additionalCosts">Доп. расходы (руб):</label>
+                <input type="number" id="additionalCosts" placeholder="Платные дороги..." step="0.01" value="0">
+            </div>
+            
+            <button onclick="calculateTripCost()">Рассчитать</button>
+            <button onclick="logout()" class="logout-btn">Выйти</button>
+            
+            <div id="result" class="result">
+                <h3>Результат:</h3>
+                <p>Общая стоимость: <span id="totalCost">0</span> ₽</p>
+                <p>Детализация:</p>
+                <ul>
+                    <li>Топливо: <span id="fuelCost">0</span> ₽</li>
+                    <li>Амортизация: <span id="depreciationCost">0</span> ₽</li>
+                    <li>Доп. расходы: <span id="additionalCostsDisplay">0</span> ₽</li>
+                </ul>
+            </div>
+            
+            <div class="history" id="history-section" style="display: none;">
+                <h3>История расчетов:</h3>
+                <div id="history-list"></div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -85,23 +234,12 @@
                 Telegram.WebApp.ready();
                 Telegram.WebApp.expand();
                 
-                // Подписываемся на события
-                Telegram.WebApp.onEvent('themeChanged', updateTheme);
-                Telegram.WebApp.onEvent('viewportChanged', checkAuth);
-                
-                updateTheme();
-                checkAuth();
+                // Проверяем авторизацию
+                setTimeout(checkAuth, 300);
             } else {
-                initializeAuth();
+                checkSavedSession();
             }
         });
-
-        function updateTheme() {
-            if (window.Telegram?.WebApp) {
-                const theme = Telegram.WebApp.colorScheme;
-                document.body.style.backgroundColor = theme === 'dark' ? '#0d0208' : '#f0f0f0';
-            }
-        }
 
         function checkAuth() {
             if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
@@ -124,7 +262,7 @@
                     username: user.username
                 },
                 isWebApp: true,
-                authDate: tg.initDataUnsafe.auth_date
+                authDate: Math.floor(Date.now() / 1000)
             };
             
             localStorage.setItem('tg_auth', JSON.stringify(sessionData));
@@ -153,49 +291,38 @@
         }
 
         function loginWithTelegram() {
-            const botId = "7474644739"; // Ваш корректный ID бота
-            const origin = encodeURIComponent(window.location.origin);
-            const authUrl = `https://oauth.telegram.org/auth?bot_id=${botId}&origin=${origin}&request_access=write`;
+            const botId = "7757050898:AAFMpSVRPtBZeLhYg0d8-xv1PA_kWzTDtxs"; // Ваш ID бота
             
-            if (window.Telegram?.WebApp?.platform !== "unknown") {
-                // Внутри Telegram
-                Telegram.WebApp.openTelegramLink(authUrl);
+            if (window.Telegram?.WebApp) {
+                // Внутри Telegram - используем WebApp данные
+                Telegram.WebApp.ready();
                 
-                // Добавляем обработчик сообщений
-                window.addEventListener('message', (event) => {
-                    if (event.origin !== 'https://oauth.telegram.org') return;
-                    
-                    if (event.data?.event === 'auth_result' && event.data?.result === 'success') {
-                        handleAuthSuccess(event.data.user);
-                    }
-                });
+                if (Telegram.WebApp.initDataUnsafe?.user) {
+                    handleTelegramAuth();
+                } else {
+                    // Если нет данных пользователя, показываем кнопку
+                    showAuthButton();
+                }
             } else {
-                // В браузере
-                const authWindow = window.open(authUrl, 'TelegramAuth', 'width=500,height=600');
-                
-                window.addEventListener('message', (event) => {
-                    if (event.origin !== 'https://oauth.telegram.org') return;
-                    
-                    if (event.data?.event === 'auth_result' && event.data?.result === 'success') {
-                        handleAuthSuccess(event.data.user);
-                        if (authWindow) authWindow.close();
-                    }
-                });
-            }
-        }
-
-        function handleAuthSuccess(user) {
-            if (document.getElementById('remember-me').checked) {
-                const sessionData = {
-                    user: user,
-                    isWebApp: false,
-                    authDate: Math.floor(Date.now() / 1000)
+                // В браузере - используем простую авторизацию без номера телефона
+                const randomUser = {
+                    first_name: "Гость",
+                    last_name: "Тестовый",
+                    username: "testuser",
+                    id: Math.floor(Math.random() * 1000000)
                 };
-                localStorage.setItem('tg_auth', JSON.stringify(sessionData));
+                
+                if (document.getElementById('remember-me').checked) {
+                    const sessionData = {
+                        user: randomUser,
+                        isWebApp: false,
+                        authDate: Math.floor(Date.now() / 1000)
+                    };
+                    localStorage.setItem('tg_auth', JSON.stringify(sessionData));
+                }
+                
+                showAppContent(randomUser.first_name);
             }
-            
-            showAppContent(user.first_name || 'Пользователь');
-            loadLastCalculation();
         }
 
         function showAppContent(username) {
@@ -216,9 +343,106 @@
         }
 
         // ==================== КАЛЬКУЛЯТОР ====================
-        // Функции калькулятора остаются без изменений
-        // ... 
+        function calculateTripCost() {
+            const distance = parseFloat(document.getElementById('distance').value);
+            const fuelConsumption = parseFloat(document.getElementById('fuelConsumption').value);
+            const fuelPrice = parseFloat(document.getElementById('fuelPrice').value);
+            const depreciation = parseFloat(document.getElementById('depreciation').value);
+            const additionalCosts = parseFloat(document.getElementById('additionalCosts').value) || 0;
+            
+            if (isNaN(distance) || isNaN(fuelConsumption) || isNaN(fuelPrice) || isNaN(depreciation)) {
+                alert("Заполните все основные поля!");
+                return;
+            }
+            
+            const fuelCost = (fuelConsumption / 100) * distance * fuelPrice;
+            const depreciationCost = depreciation * distance;
+            const totalCost = fuelCost + depreciationCost + additionalCosts;
+            
+            const calculation = {
+                distance,
+                fuelConsumption,
+                fuelPrice,
+                depreciation,
+                additionalCosts,
+                fuelCost,
+                depreciationCost,
+                totalCost,
+                timestamp: new Date().getTime()
+            };
+            
+            saveCalculation(calculation);
+            showResult(calculation);
+        }
 
+        function saveCalculation(calculation) {
+            localStorage.setItem('last_calculation', JSON.stringify(calculation));
+            
+            let history = JSON.parse(localStorage.getItem('calculation_history') || "[]");
+            history.unshift(calculation);
+            
+            if (history.length > 10) {
+                history = history.slice(0, 10);
+            }
+            
+            localStorage.setItem('calculation_history', JSON.stringify(history));
+            updateHistoryList(history);
+        }
+
+        function loadLastCalculation() {
+            const lastCalc = localStorage.getItem('last_calculation');
+            if (lastCalc) {
+                const calculation = JSON.parse(lastCalc);
+                fillForm(calculation);
+                
+                const history = JSON.parse(localStorage.getItem('calculation_history') || "[]");
+                if (history.length > 0) {
+                    updateHistoryList(history);
+                    document.getElementById('history-section').style.display = 'block';
+                }
+            }
+        }
+
+        function fillForm(calculation) {
+            document.getElementById('distance').value = calculation.distance;
+            document.getElementById('fuelConsumption').value = calculation.fuelConsumption;
+            document.getElementById('fuelPrice').value = calculation.fuelPrice;
+            document.getElementById('depreciation').value = calculation.depreciation;
+            document.getElementById('additionalCosts').value = calculation.additionalCosts;
+        }
+
+        function showResult(calculation) {
+            document.getElementById('fuelCost').textContent = calculation.fuelCost.toFixed(2);
+            document.getElementById('depreciationCost').textContent = calculation.depreciationCost.toFixed(2);
+            document.getElementById('additionalCostsDisplay').textContent = calculation.additionalCosts.toFixed(2);
+            document.getElementById('totalCost').textContent = calculation.totalCost.toFixed(2);
+            
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('history-section').style.display = 'block';
+            
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateHistoryList(history) {
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            
+            history.forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div>${new Date(item.timestamp).toLocaleString()}</div>
+                    <div>${item.distance} км → ${item.totalCost.toFixed(2)} ₽</div>
+                `;
+                
+                historyItem.onclick = () => {
+                    fillForm(item);
+                    showResult(item);
+                };
+                
+                historyList.appendChild(historyItem);
+            });
+        }
     </script>
 </body>
 </html>
