@@ -2,106 +2,223 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Калькулятор себестоимости поездки</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TAXI-MATRIX: Калькулятор поездки</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono:wght@400;700&display=swap');
+        
+        :root {
+            --matrix-green: #00ff41;
+            --matrix-dark: #0d0208;
+            --taxi-yellow: #ffd700;
+            --neon-glow: 0 0 5px var(--matrix-green);
+            --font-size: 16px;
+            --font-size-large: 18px;
+            --font-size-xlarge: 22px;
+            --font-size-xxlarge: 26px;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            font-family: 'Ubuntu Mono', monospace;
+            background-color: var(--matrix-dark);
+            color: var(--matrix-green);
+            margin: 0;
+            padding: 10px;
+            line-height: 1.4;
+            text-shadow: 0 0 3px rgba(0, 255, 65, 0.3);
+            font-size: var(--font-size);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
+        
         h1 {
-            color: #333;
             text-align: center;
+            font-size: var(--font-size-xlarge);
+            margin: 10px 0;
+            color: var(--taxi-yellow);
+            text-shadow: var(--neon-glow);
+            position: relative;
+            line-height: 1.2;
         }
+        
+        h1::after {
+            content: "▋";
+            animation: blink 1s step-end infinite;
+            margin-left: 3px;
+        }
+        
         .calculator {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: rgba(13, 2, 8, 0.9);
+            border: 1px solid var(--matrix-green);
+            box-shadow: var(--neon-glow);
+            padding: 15px;
+            border-radius: 3px;
+            margin-bottom: 15px;
+            flex-grow: 1;
         }
+        
         .form-group {
             margin-bottom: 15px;
         }
+        
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: var(--font-size);
+            color: var(--taxi-yellow);
         }
+        
         input {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
+            padding: 12px;
+            font-size: var(--font-size);
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--matrix-green);
+            color: var(--matrix-green);
+            border-radius: 0;
+            font-family: 'Ubuntu Mono', monospace;
         }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--taxi-yellow);
+            box-shadow: 0 0 8px var(--taxi-yellow);
+        }
+        
         button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
+            background-color: var(--matrix-dark);
+            color: var(--matrix-green);
+            border: 1px solid var(--matrix-green);
+            padding: 12px;
+            font-size: var(--font-size);
             cursor: pointer;
             width: 100%;
-            font-size: 16px;
+            font-family: 'Ubuntu Mono', monospace;
+            margin-top: 10px;
+            text-transform: uppercase;
         }
+        
         button:hover {
-            background-color: #45a049;
+            background-color: var(--matrix-green);
+            color: var(--matrix-dark);
         }
+        
         .result {
-            margin-top: 20px;
+            margin-top: 15px;
             padding: 15px;
-            background-color: #e9f7ef;
-            border-radius: 4px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-left: 3px solid var(--taxi-yellow);
             display: none;
+        }
+        
+        .result h3 {
+            color: var(--taxi-yellow);
+            margin-top: 0;
+            font-size: var(--font-size-large);
+        }
+        
+        .result p, .result li {
+            font-size: var(--font-size);
+            margin: 8px 0;
+        }
+        
+        #totalCost {
+            font-size: var(--font-size-large);
+            color: var(--taxi-yellow);
+        }
+        
+        .taxi-stripe {
+            height: 8px;
+            background: repeating-linear-gradient(
+                45deg,
+                var(--taxi-yellow),
+                var(--taxi-yellow) 15px,
+                var(--matrix-dark) 15px,
+                var(--matrix-dark) 30px
+            );
+            margin: 10px 0;
+        }
+        
+        .taxi-badge {
+            background-color: var(--taxi-yellow);
+            color: black;
+            padding: 3px 6px;
+            font-size: 12px;
+            display: inline-block;
+            transform: rotate(-5deg);
+            margin-left: 5px;
+        }
+        
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+        
+        /* Адаптация для очень маленьких экранов */
+        @media (max-width: 360px) {
+            :root {
+                --font-size: 14px;
+                --font-size-large: 16px;
+                --font-size-xlarge: 20px;
+            }
+            
+            input, button {
+                padding: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Калькулятор себестоимости поездки</h1>
+    <h1>TAXI-MATRIX <span class="taxi-badge">TAXI</span></h1>
+    
+    <div class="taxi-stripe"></div>
     
     <div class="calculator">
         <div class="form-group">
-            <label for="distance">Расстояние поездки (км):</label>
-            <input type="number" id="distance" placeholder="Введите расстояние">
+            <label for="distance">↳ Расстояние (км):</label>
+            <input type="number" id="distance" placeholder="Введите километраж">
         </div>
         
         <div class="form-group">
-            <label for="fuelConsumption">Средний расход топлива (л/100 км):</label>
-            <input type="number" id="fuelConsumption" placeholder="Например: 8" step="0.1">
+            <label for="fuelConsumption">↳ Расход топлива (л/100км):</label>
+            <input type="number" id="fuelConsumption" placeholder="Например: 8.5" step="0.1">
         </div>
         
         <div class="form-group">
-            <label for="fuelPrice">Цена топлива (руб./литр):</label>
-            <input type="number" id="fuelPrice" placeholder="Например: 50" step="0.01">
+            <label for="fuelPrice">↳ Цена топлива (руб/литр):</label>
+            <input type="number" id="fuelPrice" placeholder="Например: 52.30" step="0.01">
         </div>
         
         <div class="form-group">
-            <label for="depreciation">Амортизация на 1 км (руб.):</label>
-            <input type="number" id="depreciation" placeholder="Например: 5" step="0.01">
+            <label for="depreciation">↳ Амортизация (руб/км):</label>
+            <input type="number" id="depreciation" placeholder="Например: 5.50" step="0.01">
         </div>
         
         <div class="form-group">
-            <label for="additionalCosts">Дополнительные расходы (руб.):</label>
-            <input type="number" id="additionalCosts" placeholder="Платные дороги, парковка и т.д." step="0.01" value="0">
+            <label for="additionalCosts">↳ Доп. расходы (руб):</label>
+            <input type="number" id="additionalCosts" placeholder="Платные дороги..." step="0.01" value="0">
         </div>
         
-        <button onclick="calculateTripCost()">Рассчитать стоимость</button>
+        <button onclick="calculateTripCost()">Рассчитать</button>
         
         <div id="result" class="result">
             <h3>Результат:</h3>
-            <p>Общая себестоимость поездки: <span id="totalCost">0</span> руб.</p>
-            <p>В том числе:</p>
+            <p>↳ Общая стоимость: <span id="totalCost">0</span> ₽</p>
+            <p>↳ Детализация:</p>
             <ul>
-                <li>Топливо: <span id="fuelCost">0</span> руб.</li>
-                <li>Амортизация: <span id="depreciationCost">0</span> руб.</li>
-                <li>Дополнительные расходы: <span id="additionalCostsDisplay">0</span> руб.</li>
+                <li>Топливо: <span id="fuelCost">0</span> ₽</li>
+                <li>Амортизация: <span id="depreciationCost">0</span> ₽</li>
+                <li>Доп. расходы: <span id="additionalCostsDisplay">0</span> ₽</li>
             </ul>
         </div>
     </div>
-
+    
+    <div class="taxi-stripe"></div>
+    
     <script>
         function calculateTripCost() {
             // Получаем значения из формы
@@ -111,9 +228,9 @@
             const depreciation = parseFloat(document.getElementById('depreciation').value);
             const additionalCosts = parseFloat(document.getElementById('additionalCosts').value) || 0;
             
-            // Проверяем, что все обязательные поля заполнены
+            // Проверяем заполнение обязательных полей
             if (isNaN(distance) || isNaN(fuelConsumption) || isNaN(fuelPrice) || isNaN(depreciation)) {
-                alert("Пожалуйста, заполните все обязательные поля!");
+                alert("Заполните все основные поля!");
                 return;
             }
             
@@ -130,6 +247,9 @@
             
             // Показываем блок с результатами
             document.getElementById('result').style.display = 'block';
+            
+            // Прокручиваем к результату
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
 </body>
