@@ -13,7 +13,7 @@
             --matrix-dark: #0d0208;
             --taxi-yellow: #ffd700;
             --neon-glow: 0 0 5px var(--matrix-green);
-            --font-size: 18px;
+            --font-size: 18px; /* Увеличен шрифт на 2px */
             --font-size-large: 20px;
             --font-size-xlarge: 24px;
         }
@@ -128,20 +128,6 @@
             margin-bottom: 0;
         }
         
-        .distance-row {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .distance-input {
-            flex: 1;
-        }
-        
-        .distance-switch {
-            width: 120px;
-        }
-        
         label {
             display: block;
             margin-bottom: 8px;
@@ -158,16 +144,6 @@
             color: var(--matrix-green);
             border-radius: 0;
             font-family: 'Ubuntu Mono', monospace;
-        }
-        
-        input[type="number"] {
-            -moz-appearance: textfield;
-        }
-        
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
         }
         
         .result {
@@ -195,18 +171,17 @@
             background-color: rgba(0, 255, 65, 0.1);
         }
         
-        /* Стили для переключателей */
-        .switch-container {
+        /* Стили для переключателя режимов */
+        .mode-switch {
             display: flex;
-            align-items: center;
-            margin-top: 5px;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: relative;
         }
         
-        .switch-label {
+        .mode-switch-label {
             margin: 0 10px;
-            font-size: var(--font-size);
             color: var(--taxi-yellow);
-            white-space: nowrap;
         }
         
         .switch {
@@ -279,30 +254,20 @@
             margin-right: 8px;
         }
         
-        .cost-details {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 3px;
-        }
-        
-        .suggestions {
+        .empty-trip {
             display: flex;
-            gap: 5px;
-            margin-top: 5px;
-            flex-wrap: wrap;
+            align-items: center;
+            margin: 10px 0;
         }
         
-        .suggestion {
-            padding: 3px 8px;
-            background-color: rgba(0, 255, 65, 0.1);
-            border-radius: 3px;
+        .empty-trip label {
+            margin: 0 0 0 10px;
             cursor: pointer;
-            font-size: 14px;
         }
         
-        .suggestion:hover {
-            background-color: rgba(0, 255, 65, 0.2);
+        .empty-trip input {
+            width: auto;
+            margin: 0;
         }
     </style>
 </head>
@@ -326,29 +291,20 @@
         
         <div class="calculator">
             <div class="mode-switch">
-                <span class="switch-label">Себестоимость</span>
+                <span class="mode-switch-label">Себестоимость</span>
                 <label class="switch">
                     <input type="checkbox" id="mode-switch" onchange="toggleMode()">
                     <span class="slider"></span>
                 </label>
-                <span class="switch-label">Заработок</span>
+                <span class="mode-switch-label">Заработок</span>
             </div>
             
             <div class="form-group">
                 <label for="distance">Расстояние (км):</label>
-                <div class="distance-row">
-                    <div class="distance-input">
-                        <input type="number" id="distance" placeholder="Введите километраж">
-                    </div>
-                    <div class="distance-switch" id="empty-trip-container" style="display: none;">
-                        <div class="switch-container">
-                            <span class="switch-label">Порожняк</span>
-                            <label class="switch">
-                                <input type="checkbox" id="empty-trip">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                    </div>
+                <input type="number" id="distance" placeholder="Введите километраж">
+                <div class="empty-trip" id="empty-trip-container" style="display: none;">
+                    <input type="checkbox" id="empty-trip">
+                    <label for="empty-trip">Обратно порожняком</label>
                 </div>
             </div>
             
@@ -361,7 +317,6 @@
                 <div class="form-group">
                     <label for="fuelPrice">Цена топлива (руб/литр):</label>
                     <input type="number" id="fuelPrice" placeholder="Например: 52.30" step="0.01">
-                    <div class="suggestions" id="fuelPriceSuggestions"></div>
                 </div>
             </div>
             
@@ -388,7 +343,6 @@
                     <div class="form-group">
                         <label for="commission">Комиссия сервиса (%):</label>
                         <input type="number" id="commission" placeholder="Например: 20" step="0.1">
-                        <div class="suggestions" id="commissionSuggestions"></div>
                     </div>
                 </div>
                 
@@ -410,12 +364,9 @@
             <div id="result" class="result">
                 <h3>Результат:</h3>
                 <div id="cost-result">
+                    <p>Топливо: <span id="fuelCost">0</span> ₽</p>
+                    <p>Амортизация: <span id="depreciationCost">0</span> ₽</p>
                     <p><strong>Себестоимость: <span id="totalCost">0</span> ₽</strong></p>
-                    <div class="cost-details" id="cost-details">
-                        <p>Бензин: <span id="fuelCost">0</span> ₽</p>
-                        <p>Амортизация: <span id="depreciationCost">0</span> ₽</p>
-                        <p id="empty-trip-info" style="display: none;">Учтён порожняк (расстояние ×2)</p>
-                    </div>
                 </div>
                 <div id="earn-result" style="display: none;">
                     <p><strong>Чистый заработок: <span id="netEarnings">0</span> ₽</strong></p>
@@ -426,11 +377,6 @@
                         <li>Налог: <span id="taxCost">0</span> ₽</li>
                         <li>Себестоимость: <span id="costPrice">0</span> ₽</li>
                     </ul>
-                    <div class="cost-details" id="earn-cost-details" style="display: none;">
-                        <p>Бензин: <span id="earnFuelCost">0</span> ₽</p>
-                        <p>Амортизация: <span id="earnDepreciationCost">0</span> ₽</p>
-                        <p id="earn-empty-trip-info" style="display: none;">Учтён порожняк (расстояние ×2)</p>
-                    </div>
                 </div>
             </div>
             
@@ -454,60 +400,8 @@
             } else {
                 checkSavedSession();
             }
-            
-            // Загружаем сохраненные значения для подсказок
-            loadSuggestions();
         });
 
-        // ==================== ПОДСКАЗКИ ====================
-        function loadSuggestions() {
-            // Загрузка сохраненных цен топлива
-            const savedFuelPrices = JSON.parse(localStorage.getItem('fuelPrices') || []);
-            updateSuggestions('fuelPriceSuggestions', savedFuelPrices, 'fuelPrice');
-            
-            // Загрузка сохраненных комиссий
-            const savedCommissions = JSON.parse(localStorage.getItem('commissions') || []);
-            updateSuggestions('commissionSuggestions', savedCommissions, 'commission');
-        }
-        
-        function updateSuggestions(containerId, values, targetId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            
-            // Убираем дубликаты и сортируем
-            const uniqueValues = [...new Set(values)].sort((a, b) => b - a);
-            
-            uniqueValues.slice(0, 3).forEach(value => {
-                const suggestion = document.createElement('div');
-                suggestion.className = 'suggestion';
-                suggestion.textContent = value;
-                suggestion.onclick = () => {
-                    document.getElementById(targetId).value = value;
-                };
-                container.appendChild(suggestion);
-            });
-        }
-        
-        function saveValue(key, value) {
-            const savedValues = JSON.parse(localStorage.getItem(key) || "[]");
-            
-            // Добавляем новое значение, если его еще нет
-            if (!savedValues.includes(value)) {
-                savedValues.unshift(value);
-                
-                // Ограничиваем количество сохраненных значений
-                if (savedValues.length > 5) {
-                    savedValues.pop();
-                }
-                
-                localStorage.setItem(key, JSON.stringify(savedValues));
-            }
-            
-            // Обновляем подсказки
-            loadSuggestions();
-        }
-
-        // ==================== АВТОРИЗАЦИЯ ====================
         function checkAuth() {
             if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
                 handleTelegramAuth();
@@ -516,6 +410,7 @@
             }
         }
 
+        // ==================== АВТОРИЗАЦИЯ ====================
         function handleTelegramAuth() {
             const tg = Telegram.WebApp;
             const user = tg.initDataUnsafe.user;
@@ -629,17 +524,7 @@
         function calculate() {
             const isEarnMode = document.getElementById('mode-switch').checked;
             
-            // Сохраняем часто используемые значения
-            const fuelPrice = parseFloat(document.getElementById('fuelPrice').value);
-            if (!isNaN(fuelPrice)) {
-                saveValue('fuelPrices', fuelPrice);
-            }
-            
             if (isEarnMode) {
-                const commission = parseFloat(document.getElementById('commission').value);
-                if (!isNaN(commission)) {
-                    saveValue('commissions', commission);
-                }
                 calculateNetEarnings();
             } else {
                 calculateTripCost();
@@ -814,17 +699,9 @@
             document.getElementById('netEarnings').textContent = calculation.netEarnings.toFixed(2);
             
             // Также показываем данные о себестоимости
-            document.getElementById('earnFuelCost').textContent = calculation.fuelCost.toFixed(2);
-            document.getElementById('earnDepreciationCost').textContent = calculation.depreciationCost.toFixed(2);
-            
-            // Показываем информацию о порожняке, если он был учтен
-            if (calculation.emptyTrip) {
-                document.getElementById('earn-empty-trip-info').style.display = 'block';
-                document.getElementById('earn-cost-details').style.display = 'block';
-            } else {
-                document.getElementById('earn-empty-trip-info').style.display = 'none';
-                document.getElementById('earn-cost-details').style.display = 'none';
-            }
+            document.getElementById('fuelCost').textContent = calculation.fuelCost.toFixed(2);
+            document.getElementById('depreciationCost').textContent = calculation.depreciationCost.toFixed(2);
+            document.getElementById('totalCost').textContent = calculation.costPrice.toFixed(2);
             
             document.getElementById('cost-result').style.display = 'none';
             document.getElementById('earn-result').style.display = 'block';
@@ -843,15 +720,15 @@
                 historyItem.className = 'history-item';
                 
                 if (item.mode === 'earn') {
-                    const emptyTripText = item.emptyTrip ? " (порожняк)" : "";
+                    const emptyTripText = item.emptyTrip ? " (с порожняком)" : "";
                     historyItem.innerHTML = `
                         <div>${new Date(item.timestamp).toLocaleString()}</div>
-                        <div><strong>${item.distance} км${emptyTripText} (${item.tripPrice.toFixed(2)} ₽)</strong> → Чистый заработок: <strong>${item.netEarnings.toFixed(2)} ₽</strong></div>
+                        <div><strong>${item.distance} км${emptyTripText} (${item.tripPrice.toFixed(2)} руб)</strong> → Чистый заработок: <strong>${item.netEarnings.toFixed(2)} руб</strong></div>
                     `;
                 } else {
                     historyItem.innerHTML = `
                         <div>${new Date(item.timestamp).toLocaleString()}</div>
-                        <div><strong>${item.distance} км</strong> → Себестоимость: <strong>${item.totalCost.toFixed(2)} ₽</strong></div>
+                        <div><strong>${item.distance} км</strong> → Себестоимость: <strong>${item.totalCost.toFixed(2)} руб</strong></div>
                     `;
                 }
                 
