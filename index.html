@@ -7,24 +7,18 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono:wght@400;700&display=swap');
-        #empty-trip-container {
-            display: flex;
-            align-items: center;
-        }
         :root {
             --matrix-green: #00ff41;
             --matrix-dark: #0d0208;
             --taxi-yellow: #ffd700;
             --neon-glow: 0 0 5px var(--matrix-green);
-            --font-size: 18px;
-            --font-size-large: 20px;
-            --font-size-xlarge: 24px;
+            --font-size: 16px;
+            --font-size-large: 18px;
+            --font-size-xlarge: 22px;
         }
-        
         * {
             box-sizing: border-box;
         }
-        
         body {
             font-family: 'Ubuntu Mono', monospace;
             background-color: var(--matrix-dark);
@@ -39,7 +33,6 @@
             flex-direction: column;
             justify-content: center;
         }
-        
         .auth-container {
             text-align: center;
             margin: 0 auto;
@@ -49,11 +42,9 @@
             box-shadow: var(--neon-glow);
             border-radius: 5px;
         }
-        
         .container {
             display: none;
         }
-        
         h1 {
             text-align: center;
             font-size: var(--font-size-xlarge);
@@ -61,7 +52,6 @@
             color: var(--taxi-yellow);
             text-shadow: var(--neon-glow);
         }
-        
         button {
             background-color: var(--matrix-dark);
             color: var(--matrix-green);
@@ -74,39 +64,32 @@
             margin-top: 10px;
             transition: all 0.3s;
         }
-        
         button:hover {
             background-color: rgba(0, 255, 65, 0.1);
             box-shadow: var(--neon-glow);
         }
-        
         .remember-me {
             margin: 15px 0;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        
         #remember-me {
             margin-right: 10px;
         }
-        
         .logout-btn {
             background-color: rgba(255, 0, 0, 0.2);
             border-color: #ff3d3d;
         }
-        
         .logout-btn:hover {
             background-color: rgba(255, 0, 0, 0.3);
         }
-        
         /* Стили для основного контента */
         .welcome-message {
             margin-bottom: 20px;
             padding: 10px;
             border-bottom: 1px dashed var(--matrix-green);
         }
-        
         .calculator {
             background-color: rgba(13, 2, 8, 0.9);
             border: 1px solid var(--matrix-green);
@@ -115,43 +98,15 @@
             border-radius: 3px;
             margin-bottom: 15px;
         }
-        
         .form-group {
             margin-bottom: 15px;
         }
-        
-        .form-row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .form-row .form-group {
-            flex: 1;
-            margin-bottom: 0;
-        }
-        
-        .distance-row {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .distance-input {
-            flex: 1;
-        }
-        
-        .distance-switch {
-            width: 120px;
-        }
-        
         label {
             display: block;
             margin-bottom: 8px;
             font-size: var(--font-size);
             color: var(--taxi-yellow);
         }
-        
         input {
             width: 100%;
             padding: 12px;
@@ -162,17 +117,6 @@
             border-radius: 0;
             font-family: 'Ubuntu Mono', monospace;
         }
-        
-        input[type="number"] {
-            -moz-appearance: textfield;
-        }
-        
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        
         .result {
             margin-top: 15px;
             padding: 15px;
@@ -180,57 +124,42 @@
             border-left: 3px solid var(--taxi-yellow);
             display: none;
         }
-        
         .history {
             margin-top: 15px;
             border-top: 1px dashed var(--matrix-green);
             padding-top: 10px;
         }
-        
         .history-item {
             margin-bottom: 5px;
             padding: 5px;
             border-bottom: 1px solid rgba(0, 255, 65, 0.2);
             cursor: pointer;
         }
-        
         .history-item:hover {
             background-color: rgba(0, 255, 65, 0.1);
         }
-        
-        /* Стили для переключателей */
-        .switch-container {
+        /* Стили для переключателя режимов */
+        .mode-switch {
             display: flex;
-            align-items: center;
-            margin-top: 5px;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: relative;
         }
-        
-        .switch-label {
+        .mode-switch-label {
             margin: 0 10px;
-            font-size: var(--font-size);
             color: var(--taxi-yellow);
-            white-space: nowrap;
         }
-        
         .switch {
             position: relative;
             display: inline-block;
             width: 60px;
             height: 34px;
         }
-        
         .switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
-
-        .switch + span {
-            font-size: var(--font-size);
-            color: var(--taxi-yellow);
-        margin-left: 10px;
-        }
-        
         .slider {
             position: absolute;
             cursor: pointer;
@@ -242,7 +171,6 @@
             transition: .4s;
             border-radius: 34px;
         }
-        
         .slider:before {
             position: absolute;
             content: "";
@@ -254,16 +182,13 @@
             transition: .4s;
             border-radius: 50%;
         }
-        
         input:checked + .slider {
             background-color: rgba(255, 215, 0, 0.3);
         }
-        
         input:checked + .slider:before {
             transform: translateX(26px);
             background-color: var(--taxi-yellow);
         }
-        
         /* Стили для дополнительных полей режима заработка */
         .earn-fields {
             display: none;
@@ -271,47 +196,28 @@
             padding-top: 15px;
             border-top: 1px dashed var(--taxi-yellow);
         }
-        
         .entity-type {
             display: flex;
             justify-content: space-around;
             margin: 15px 0;
         }
-        
         .entity-option {
             display: flex;
             align-items: center;
         }
-        
         .entity-option input {
             width: auto;
             margin-right: 8px;
         }
-        
-        .cost-details {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 3px;
-        }
-        
-        .suggestions {
+        /* Ползунок "Обратно порожняком" */
+        .empty-trip-container {
             display: flex;
-            gap: 5px;
-            margin-top: 5px;
-            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 10px;
         }
-        
-        .suggestion {
-            padding: 3px 8px;
-            background-color: rgba(0, 255, 65, 0.1);
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .suggestion:hover {
-            background-color: rgba(0, 255, 65, 0.2);
+        .empty-trip-container span {
+            margin-left: 10px;
+            color: var(--taxi-yellow);
         }
     </style>
 </head>
@@ -326,78 +232,59 @@
             </div>
         </div>
     </div>
-
     <div class="container" id="app-content">
         <div class="welcome-message">
             <h1>Привет, <span id="username"></span>!</h1>
             <p>Рассчитайте стоимость вашей поездки</p>
         </div>
-        
         <div class="calculator">
             <div class="mode-switch">
-                <span class="switch-label">Себестоимость</span>
+                <span class="mode-switch-label">Себестоимость</span>
                 <label class="switch">
                     <input type="checkbox" id="mode-switch" onchange="toggleMode()">
                     <span class="slider"></span>
                 </label>
-                <span class="switch-label">Заработок</span>
+                <span class="mode-switch-label">Заработок</span>
             </div>
-            
             <div class="form-group">
                 <label for="distance">Расстояние (км):</label>
                 <div style="display: flex; align-items: center;">
                     <input type="number" id="distance" placeholder="Введите километраж" style="flex: 1;">
-                    <div id="empty-trip-container" style="display: none;">
-                        <label class="switch" style="margin-left: 10px;">
+                    <div class="empty-trip-container" id="empty-trip-container" style="display: none;">
+                        <label class="switch">
                             <input type="checkbox" id="empty-trip">
                             <span class="slider"></span>
                         </label>
-                        <span style="margin-left: 10px; color: var(--taxi-yellow); font-size: var(--font-size);">Обратный путь без пассажиров</span>
+                        <span>Обратно порожняком</span>
                     </div>
-                    <span style="margin-left: 10px; color: var(--taxi-yellow); font-size: var(--font-size);">Обратный путь без пассажиров</span>
                 </div>
             </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="fuelConsumption">Расход топлива (л/100км):</label>
-                    <input type="number" id="fuelConsumption" placeholder="Например: 8.5" step="0.1">
-                </div>
-                
-                <div class="form-group">
-                    <label for="fuelPrice">Цена топлива (руб/литр):</label>
-                    <input type="number" id="fuelPrice" placeholder="Например: 52.30" step="0.01">
-                    <div class="suggestions" id="fuelPriceSuggestions"></div>
-                </div>
+            <div class="form-group">
+                <label for="fuelConsumption">Расход топлива (л/100км):</label>
+                <input type="number" id="fuelConsumption" placeholder="Например: 8.5" step="0.1">
             </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="depreciation">Амортизация (руб/км):</label>
-                    <input type="number" id="depreciation" placeholder="Например: 5.50" step="0.01">
-                </div>
-                
-                <div class="form-group">
-                    <label for="additionalCosts">Доп. расходы (руб):</label>
-                    <input type="number" id="additionalCosts" placeholder="Платные дороги..." step="0.01" value="0">
-                </div>
+            <div class="form-group">
+                <label for="fuelPrice">Цена топлива (руб/литр):</label>
+                <input type="number" id="fuelPrice" placeholder="Например: 52.30" step="0.01">
             </div>
-            
+            <div class="form-group">
+                <label for="depreciation">Амортизация (руб/км):</label>
+                <input type="number" id="depreciation" placeholder="Например: 5.50" step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="additionalCosts">Доп. расходы (руб):</label>
+                <input type="number" id="additionalCosts" placeholder="Платные дороги..." step="0.01" value="0">
+            </div>
             <!-- Дополнительные поля для режима заработка -->
             <div id="earn-fields" class="earn-fields">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="tripPrice">Цена поездки (руб):</label>
-                        <input type="number" id="tripPrice" placeholder="Сумма от агрегатора" step="0.01">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="commission">Комиссия сервиса (%):</label>
-                        <input type="number" id="commission" placeholder="Например: 20" step="0.1">
-                        <div class="suggestions" id="commissionSuggestions"></div>
-                    </div>
+                <div class="form-group">
+                    <label for="tripPrice">Цена поездки (руб):</label>
+                    <input type="number" id="tripPrice" placeholder="Сумма от агрегатора" step="0.01">
                 </div>
-                
+                <div class="form-group">
+                    <label for="commission">Комиссия сервиса (%):</label>
+                    <input type="number" id="commission" placeholder="Например: 20" step="0.1">
+                </div>
                 <div class="entity-type">
                     <div class="entity-option">
                         <input type="radio" id="individual" name="entity" value="individual" checked>
@@ -409,22 +296,21 @@
                     </div>
                 </div>
             </div>
-            
             <button onclick="calculate()">Рассчитать</button>
             <button onclick="logout()" class="logout-btn">Выйти</button>
-            
             <div id="result" class="result">
                 <h3>Результат:</h3>
                 <div id="cost-result">
-                    <p><strong>Себестоимость: <span id="totalCost">0</span> ₽</strong></p>
-                    <div class="cost-details" id="cost-details">
-                        <p>Бензин: <span id="fuelCost">0</span> ₽</p>
-                        <p>Амортизация: <span id="depreciationCost">0</span> ₽</p>
-                        <p id="empty-trip-info" style="display: none;">Учтён порожняк (расстояние ×2)</p>
-                    </div>
+                    <p>Общая стоимость: <span id="totalCost">0</span> ₽</p>
+                    <p>Детализация:</p>
+                    <ul>
+                        <li>Топливо: <span id="fuelCost">0</span> ₽</li>
+                        <li>Амортизация: <span id="depreciationCost">0</span> ₽</li>
+                        <li>Доп. расходы: <span id="additionalCostsDisplay">0</span> ₽</li>
+                    </ul>
                 </div>
                 <div id="earn-result" style="display: none;">
-                    <p><strong>Чистый заработок: <span id="netEarnings">0</span> ₽</strong></p>
+                    <p>Чистый заработок: <span id="netEarnings">0</span> ₽</p>
                     <p>Детализация:</p>
                     <ul>
                         <li>Цена поездки: <span id="tripPriceDisplay">0</span> ₽</li>
@@ -432,88 +318,26 @@
                         <li>Налог: <span id="taxCost">0</span> ₽</li>
                         <li>Себестоимость: <span id="costPrice">0</span> ₽</li>
                     </ul>
-                    <div class="cost-details" id="earn-cost-details" style="display: none;">
-                        <p>Бензин: <span id="earnFuelCost">0</span> ₽</p>
-                        <p>Амортизация: <span id="earnDepreciationCost">0</span> ₽</p>
-                        <p id="earn-empty-trip-info" style="display: none;">Учтён порожняк (расстояние ×2)</p>
-                    </div>
                 </div>
             </div>
-            
             <div class="history" id="history-section" style="display: none;">
                 <h3>История расчетов:</h3>
                 <div id="history-list"></div>
             </div>
         </div>
     </div>
-
     <script>
         // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', () => {
-            // Проверяем, находимся ли мы в Telegram WebApp
             if (window.Telegram?.WebApp) {
                 Telegram.WebApp.ready();
                 Telegram.WebApp.expand();
-                
-                // Проверяем авторизацию
                 setTimeout(checkAuth, 300);
             } else {
                 checkSavedSession();
             }
-            
-            // Загружаем сохраненные значения для подсказок
-            loadSuggestions();
         });
 
-        // ==================== ПОДСКАЗКИ ====================
-        function loadSuggestions() {
-            // Загрузка сохраненных цен топлива
-            const savedFuelPrices = JSON.parse(localStorage.getItem('fuelPrices') || []);
-            updateSuggestions('fuelPriceSuggestions', savedFuelPrices, 'fuelPrice');
-            
-            // Загрузка сохраненных комиссий
-            const savedCommissions = JSON.parse(localStorage.getItem('commissions') || []);
-            updateSuggestions('commissionSuggestions', savedCommissions, 'commission');
-        }
-        
-        function updateSuggestions(containerId, values, targetId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            
-            // Убираем дубликаты и сортируем
-            const uniqueValues = [...new Set(values)].sort((a, b) => b - a);
-            
-            uniqueValues.slice(0, 3).forEach(value => {
-                const suggestion = document.createElement('div');
-                suggestion.className = 'suggestion';
-                suggestion.textContent = value;
-                suggestion.onclick = () => {
-                    document.getElementById(targetId).value = value;
-                };
-                container.appendChild(suggestion);
-            });
-        }
-        
-        function saveValue(key, value) {
-            const savedValues = JSON.parse(localStorage.getItem(key) || "[]");
-            
-            // Добавляем новое значение, если его еще нет
-            if (!savedValues.includes(value)) {
-                savedValues.unshift(value);
-                
-                // Ограничиваем количество сохраненных значений
-                if (savedValues.length > 5) {
-                    savedValues.pop();
-                }
-                
-                localStorage.setItem(key, JSON.stringify(savedValues));
-            }
-            
-            // Обновляем подсказки
-            loadSuggestions();
-        }
-
-        // ==================== АВТОРИЗАЦИЯ ====================
         function checkAuth() {
             if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
                 handleTelegramAuth();
@@ -525,7 +349,6 @@
         function handleTelegramAuth() {
             const tg = Telegram.WebApp;
             const user = tg.initDataUnsafe.user;
-            
             const sessionData = {
                 user: {
                     id: user.id,
@@ -536,7 +359,6 @@
                 isWebApp: true,
                 authDate: Math.floor(Date.now() / 1000)
             };
-            
             localStorage.setItem('tg_auth', JSON.stringify(sessionData));
             showAppContent(user.first_name || 'Пользователь');
             loadLastCalculation();
@@ -548,11 +370,9 @@
                 showAuthButton();
                 return;
             }
-
             const session = JSON.parse(savedAuth);
             const sessionExpired = session.authDate && 
                 (Date.now() / 1000 - session.authDate) > 30 * 24 * 60 * 60;
-            
             if (!sessionExpired) {
                 showAppContent(session.user.first_name || 'Пользователь');
                 loadLastCalculation();
@@ -563,27 +383,21 @@
         }
 
         function loginWithTelegram() {
-            const botId = "7757050898:AAFMpSVRPtBZeLhYg0d8-xv1PA_kWzTDtxs"; // Ваш ID бота
-            
+            const botId = "7757050898:AAFMpSVRPtBZeLhYg0d8-xv1PA_kWzTDtxs";
             if (window.Telegram?.WebApp) {
-                // Внутри Telegram - используем WebApp данные
                 Telegram.WebApp.ready();
-                
                 if (Telegram.WebApp.initDataUnsafe?.user) {
                     handleTelegramAuth();
                 } else {
-                    // Если нет данных пользователя, показываем кнопку
                     showAuthButton();
                 }
             } else {
-                // В браузере - используем простую авторизацию без номера телефона
                 const randomUser = {
                     first_name: "Гость",
                     last_name: "Тестовый",
                     username: "testuser",
                     id: Math.floor(Math.random() * 1000000)
                 };
-                
                 if (document.getElementById('remember-me').checked) {
                     const sessionData = {
                         user: randomUser,
@@ -592,7 +406,6 @@
                     };
                     localStorage.setItem('tg_auth', JSON.stringify(sessionData));
                 }
-                
                 showAppContent(randomUser.first_name);
             }
         }
@@ -609,43 +422,27 @@
         }
 
         function logout() {
-            // Удаляем все данные калькулятора
             localStorage.removeItem('tg_auth');
             localStorage.removeItem('last_calculation');
-            localStorage.removeItem('calculation_history');
             showAuthButton();
         }
 
-        // ==================== ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ ====================
         function toggleMode() {
             const isEarnMode = document.getElementById('mode-switch').checked;
             const earnFields = document.getElementById('earn-fields');
             const emptyTripContainer = document.getElementById('empty-trip-container');
-            
             if (isEarnMode) {
                 earnFields.style.display = 'block';
-                emptyTripContainer.style.display = 'block';
+                emptyTripContainer.style.display = 'flex';
             } else {
                 earnFields.style.display = 'none';
                 emptyTripContainer.style.display = 'none';
             }
         }
 
-        // ==================== КАЛЬКУЛЯТОР ====================
         function calculate() {
             const isEarnMode = document.getElementById('mode-switch').checked;
-            
-            // Сохраняем часто используемые значения
-            const fuelPrice = parseFloat(document.getElementById('fuelPrice').value);
-            if (!isNaN(fuelPrice)) {
-                saveValue('fuelPrices', fuelPrice);
-            }
-            
             if (isEarnMode) {
-                const commission = parseFloat(document.getElementById('commission').value);
-                if (!isNaN(commission)) {
-                    saveValue('commissions', commission);
-                }
                 calculateNetEarnings();
             } else {
                 calculateTripCost();
@@ -658,16 +455,16 @@
             const fuelPrice = parseFloat(document.getElementById('fuelPrice').value);
             const depreciation = parseFloat(document.getElementById('depreciation').value);
             const additionalCosts = parseFloat(document.getElementById('additionalCosts').value) || 0;
-            
+
             if (isNaN(distance) || isNaN(fuelConsumption) || isNaN(fuelPrice) || isNaN(depreciation)) {
                 alert("Заполните все основные поля!");
                 return;
             }
-            
+
             const fuelCost = (fuelConsumption / 100) * distance * fuelPrice;
             const depreciationCost = depreciation * distance;
             const totalCost = fuelCost + depreciationCost + additionalCosts;
-            
+
             const calculation = {
                 mode: 'cost',
                 distance,
@@ -680,17 +477,16 @@
                 totalCost,
                 timestamp: new Date().getTime()
             };
-            
+
             saveCalculation(calculation);
             showCostResult(calculation);
         }
 
         function calculateNetEarnings() {
-            // Получаем данные о пустом пробеге
             const emptyTrip = document.getElementById('empty-trip').checked;
-            
-            // Сначала рассчитываем себестоимость
-            let distance = parseFloat(document.getElementById('distance').value);
+            const distance = parseFloat(document.getElementById('distance').value);
+            const effectiveDistance = emptyTrip ? distance * 2 : distance;
+
             const fuelConsumption = parseFloat(document.getElementById('fuelConsumption').value);
             const fuelPrice = parseFloat(document.getElementById('fuelPrice').value);
             const depreciation = parseFloat(document.getElementById('depreciation').value);
@@ -698,29 +494,21 @@
             const tripPrice = parseFloat(document.getElementById('tripPrice').value);
             const commissionRate = parseFloat(document.getElementById('commission').value);
             const isLegalEntity = document.getElementById('legal').checked;
-            
+
             if (isNaN(distance) || isNaN(fuelConsumption) || isNaN(fuelPrice) || isNaN(depreciation) || 
                 isNaN(tripPrice) || isNaN(commissionRate)) {
                 alert("Заполните все необходимые поля!");
                 return;
             }
-            
-            // Учитываем пустой пробег
-            const effectiveDistance = emptyTrip ? distance * 2 : distance;
-            
-            // Рассчитываем себестоимость
+
             const fuelCost = (fuelConsumption / 100) * effectiveDistance * fuelPrice;
             const depreciationCost = depreciation * effectiveDistance;
             const costPrice = fuelCost + depreciationCost + additionalCosts;
-            
-            // Рассчитываем комиссию и налог
             const commissionCost = tripPrice * (commissionRate / 100);
             const taxRate = isLegalEntity ? 6 : 4;
             const taxCost = tripPrice * (taxRate / 100);
-            
-            // Рассчитываем чистый заработок
             const netEarnings = tripPrice - commissionCost - taxCost - costPrice;
-            
+
             const calculation = {
                 mode: 'earn',
                 distance,
@@ -740,21 +528,18 @@
                 netEarnings,
                 timestamp: new Date().getTime()
             };
-            
+
             saveCalculation(calculation);
             showEarningsResult(calculation);
         }
 
         function saveCalculation(calculation) {
             localStorage.setItem('last_calculation', JSON.stringify(calculation));
-            
             let history = JSON.parse(localStorage.getItem('calculation_history') || "[]");
             history.unshift(calculation);
-            
             if (history.length > 10) {
                 history = history.slice(0, 10);
             }
-            
             localStorage.setItem('calculation_history', JSON.stringify(history));
             updateHistoryList(history);
         }
@@ -763,19 +548,14 @@
             const lastCalc = localStorage.getItem('last_calculation');
             if (lastCalc) {
                 const calculation = JSON.parse(lastCalc);
-                
-                // Устанавливаем режим
                 document.getElementById('mode-switch').checked = calculation.mode === 'earn';
                 toggleMode();
-                
                 fillForm(calculation);
-                
                 if (calculation.mode === 'earn') {
                     showEarningsResult(calculation);
                 } else {
                     showCostResult(calculation);
                 }
-                
                 const history = JSON.parse(localStorage.getItem('calculation_history') || "[]");
                 if (history.length > 0) {
                     updateHistoryList(history);
@@ -790,7 +570,6 @@
             document.getElementById('fuelPrice').value = calculation.fuelPrice;
             document.getElementById('depreciation').value = calculation.depreciation;
             document.getElementById('additionalCosts').value = calculation.additionalCosts || 0;
-            
             if (calculation.mode === 'earn') {
                 document.getElementById('tripPrice').value = calculation.tripPrice;
                 document.getElementById('commission').value = calculation.commissionRate;
@@ -802,13 +581,12 @@
         function showCostResult(calculation) {
             document.getElementById('fuelCost').textContent = calculation.fuelCost.toFixed(2);
             document.getElementById('depreciationCost').textContent = calculation.depreciationCost.toFixed(2);
+            document.getElementById('additionalCostsDisplay').textContent = (calculation.additionalCosts || 0).toFixed(2);
             document.getElementById('totalCost').textContent = calculation.totalCost.toFixed(2);
-            
             document.getElementById('cost-result').style.display = 'block';
             document.getElementById('earn-result').style.display = 'none';
             document.getElementById('result').style.display = 'block';
             document.getElementById('history-section').style.display = 'block';
-            
             document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -818,63 +596,46 @@
             document.getElementById('taxCost').textContent = calculation.taxCost.toFixed(2);
             document.getElementById('costPrice').textContent = calculation.costPrice.toFixed(2);
             document.getElementById('netEarnings').textContent = calculation.netEarnings.toFixed(2);
-            
-            // Также показываем данные о себестоимости
-            document.getElementById('earnFuelCost').textContent = calculation.fuelCost.toFixed(2);
-            document.getElementById('earnDepreciationCost').textContent = calculation.depreciationCost.toFixed(2);
-            
-            // Показываем информацию о порожняке, если он был учтен
-if (calculation.emptyTrip) {
-    document.getElementById('earn-empty-trip-info').style.display = 'block';
-    document.getElementById('earn-cost-details').style.display = 'block';
-} else {
-    document.getElementById('earn-empty-trip-info').style.display = 'none';
-    document.getElementById('earn-cost-details').style.display = 'none';
-}
-            
+
+            document.getElementById('fuelCost').textContent = calculation.fuelCost.toFixed(2);
+            document.getElementById('depreciationCost').textContent = calculation.depreciationCost.toFixed(2);
+            document.getElementById('additionalCostsDisplay').textContent = (calculation.additionalCosts || 0).toFixed(2);
+            document.getElementById('totalCost').textContent = calculation.costPrice.toFixed(2);
+
             document.getElementById('cost-result').style.display = 'none';
             document.getElementById('earn-result').style.display = 'block';
             document.getElementById('result').style.display = 'block';
             document.getElementById('history-section').style.display = 'block';
-            
             document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
         }
 
         function updateHistoryList(history) {
             const historyList = document.getElementById('history-list');
             historyList.innerHTML = '';
-            
             history.forEach((item, index) => {
                 const historyItem = document.createElement('div');
                 historyItem.className = 'history-item';
-                
                 if (item.mode === 'earn') {
-                    const emptyTripText = item.emptyTrip ? " (порожняк)" : "";
                     historyItem.innerHTML = `
                         <div>${new Date(item.timestamp).toLocaleString()}</div>
-                        <div><strong>${item.distance} км${emptyTripText} (${item.tripPrice.toFixed(2)} ₽)</strong> → Чистый заработок: <strong>${item.netEarnings.toFixed(2)} ₽</strong></div>
+                        <div>${item.distance} км → Чистый заработок: ${item.netEarnings.toFixed(2)} ₽</div>
                     `;
                 } else {
                     historyItem.innerHTML = `
                         <div>${new Date(item.timestamp).toLocaleString()}</div>
-                        <div><strong>${item.distance} км</strong> → Себестоимость: <strong>${item.totalCost.toFixed(2)} ₽</strong></div>
+                        <div>${item.distance} км → Себестоимость: ${item.totalCost.toFixed(2)} ₽</div>
                     `;
                 }
-                
                 historyItem.onclick = () => {
-                    // Устанавливаем правильный режим
                     document.getElementById('mode-switch').checked = item.mode === 'earn';
                     toggleMode();
-                    
                     fillForm(item);
-                    
                     if (item.mode === 'earn') {
                         showEarningsResult(item);
                     } else {
                         showCostResult(item);
                     }
                 };
-                
                 historyList.appendChild(historyItem);
             });
         }
