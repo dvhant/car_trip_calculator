@@ -7,7 +7,10 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono:wght@400;700&display=swap');
-        
+        #empty-trip-container {
+            display: flex;
+            align-items: center;
+        }
         :root {
             --matrix-green: #00ff41;
             --matrix-dark: #0d0208;
@@ -344,10 +347,13 @@
                 <label for="distance">Расстояние (км):</label>
                 <div style="display: flex; align-items: center;">
                     <input type="number" id="distance" placeholder="Введите километраж" style="flex: 1;">
-                    <label class="switch" style="margin-left: 10px;">
-                        <input type="checkbox" id="empty-trip">
-                        <span class="slider"></span>
-                    </label>
+                    <div id="empty-trip-container" style="display: none;">
+                        <label class="switch" style="margin-left: 10px;">
+                            <input type="checkbox" id="empty-trip">
+                            <span class="slider"></span>
+                        </label>
+                        <span style="margin-left: 10px; color: var(--taxi-yellow); font-size: var(--font-size);">Обратный путь без пассажиров</span>
+                    </div>
                     <span style="margin-left: 10px; color: var(--taxi-yellow); font-size: var(--font-size);">Обратный путь без пассажиров</span>
                 </div>
             </div>
@@ -818,13 +824,13 @@
             document.getElementById('earnDepreciationCost').textContent = calculation.depreciationCost.toFixed(2);
             
             // Показываем информацию о порожняке, если он был учтен
-            if (calculation.emptyTrip) {
-                document.getElementById('earn-empty-trip-info').style.display = 'block';
-                document.getElementById('earn-cost-details').style.display = 'block';
-            } else {
-                document.getElementById('earn-empty-trip-info').style.display = 'none';
-                document.getElementById('earn-cost-details').style.display = 'none';
-            }
+if (calculation.emptyTrip) {
+    document.getElementById('earn-empty-trip-info').style.display = 'block';
+    document.getElementById('earn-cost-details').style.display = 'block';
+} else {
+    document.getElementById('earn-empty-trip-info').style.display = 'none';
+    document.getElementById('earn-cost-details').style.display = 'none';
+}
             
             document.getElementById('cost-result').style.display = 'none';
             document.getElementById('earn-result').style.display = 'block';
