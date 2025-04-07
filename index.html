@@ -13,9 +13,9 @@
             --matrix-dark: #0d0208;
             --taxi-yellow: #ffd700;
             --neon-glow: 0 0 5px var(--matrix-green);
-            --font-size: 16px;
-            --font-size-large: 18px;
-            --font-size-xlarge: 22px;
+            --font-size: 18px; /* Увеличен шрифт на 2px */
+            --font-size-large: 20px;
+            --font-size-xlarge: 24px;
         }
         
         * {
@@ -115,6 +115,17 @@
         
         .form-group {
             margin-bottom: 15px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
         }
         
         label {
@@ -242,6 +253,22 @@
             width: auto;
             margin-right: 8px;
         }
+        
+        .empty-trip {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .empty-trip label {
+            margin: 0 0 0 10px;
+            cursor: pointer;
+        }
+        
+        .empty-trip input {
+            width: auto;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -275,38 +302,48 @@
             <div class="form-group">
                 <label for="distance">Расстояние (км):</label>
                 <input type="number" id="distance" placeholder="Введите километраж">
+                <div class="empty-trip" id="empty-trip-container" style="display: none;">
+                    <input type="checkbox" id="empty-trip">
+                    <label for="empty-trip">Обратно порожняком</label>
+                </div>
             </div>
             
-            <div class="form-group">
-                <label for="fuelConsumption">Расход топлива (л/100км):</label>
-                <input type="number" id="fuelConsumption" placeholder="Например: 8.5" step="0.1">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fuelConsumption">Расход топлива (л/100км):</label>
+                    <input type="number" id="fuelConsumption" placeholder="Например: 8.5" step="0.1">
+                </div>
+                
+                <div class="form-group">
+                    <label for="fuelPrice">Цена топлива (руб/литр):</label>
+                    <input type="number" id="fuelPrice" placeholder="Например: 52.30" step="0.01">
+                </div>
             </div>
             
-            <div class="form-group">
-                <label for="fuelPrice">Цена топлива (руб/литр):</label>
-                <input type="number" id="fuelPrice" placeholder="Например: 52.30" step="0.01">
-            </div>
-            
-            <div class="form-group">
-                <label for="depreciation">Амортизация (руб/км):</label>
-                <input type="number" id="depreciation" placeholder="Например: 5.50" step="0.01">
-            </div>
-            
-            <div class="form-group">
-                <label for="additionalCosts">Доп. расходы (руб):</label>
-                <input type="number" id="additionalCosts" placeholder="Платные дороги..." step="0.01" value="0">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="depreciation">Амортизация (руб/км):</label>
+                    <input type="number" id="depreciation" placeholder="Например: 5.50" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="additionalCosts">Доп. расходы (руб):</label>
+                    <input type="number" id="additionalCosts" placeholder="Платные дороги..." step="0.01" value="0">
+                </div>
             </div>
             
             <!-- Дополнительные поля для режима заработка -->
             <div id="earn-fields" class="earn-fields">
-                <div class="form-group">
-                    <label for="tripPrice">Цена поездки (руб):</label>
-                    <input type="number" id="tripPrice" placeholder="Сумма от агрегатора" step="0.01">
-                </div>
-                
-                <div class="form-group">
-                    <label for="commission">Комиссия сервиса (%):</label>
-                    <input type="number" id="commission" placeholder="Например: 20" step="0.1">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tripPrice">Цена поездки (руб):</label>
+                        <input type="number" id="tripPrice" placeholder="Сумма от агрегатора" step="0.01">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="commission">Комиссия сервиса (%):</label>
+                        <input type="number" id="commission" placeholder="Например: 20" step="0.1">
+                    </div>
                 </div>
                 
                 <div class="entity-type">
@@ -327,16 +364,12 @@
             <div id="result" class="result">
                 <h3>Результат:</h3>
                 <div id="cost-result">
-                    <p>Общая стоимость: <span id="totalCost">0</span> ₽</p>
-                    <p>Детализация:</p>
-                    <ul>
-                        <li>Топливо: <span id="fuelCost">0</span> ₽</li>
-                        <li>Амортизация: <span id="depreciationCost">0</span> ₽</li>
-                        <li>Доп. расходы: <span id="additionalCostsDisplay">0</span> ₽</li>
-                    </ul>
+                    <p>Топливо: <span id="fuelCost">0</span> ₽</p>
+                    <p>Амортизация: <span id="depreciationCost">0</span> ₽</p>
+                    <p><strong>Себестоимость: <span id="totalCost">0</span> ₽</strong></p>
                 </div>
                 <div id="earn-result" style="display: none;">
-                    <p>Чистый заработок: <span id="netEarnings">0</span> ₽</p>
+                    <p><strong>Чистый заработок: <span id="netEarnings">0</span> ₽</strong></p>
                     <p>Детализация:</p>
                     <ul>
                         <li>Цена поездки: <span id="tripPriceDisplay">0</span> ₽</li>
@@ -465,8 +498,10 @@
         }
 
         function logout() {
+            // Удаляем все данные калькулятора
             localStorage.removeItem('tg_auth');
             localStorage.removeItem('last_calculation');
+            localStorage.removeItem('calculation_history');
             showAuthButton();
         }
 
@@ -474,11 +509,14 @@
         function toggleMode() {
             const isEarnMode = document.getElementById('mode-switch').checked;
             const earnFields = document.getElementById('earn-fields');
+            const emptyTripContainer = document.getElementById('empty-trip-container');
             
             if (isEarnMode) {
                 earnFields.style.display = 'block';
+                emptyTripContainer.style.display = 'block';
             } else {
                 earnFields.style.display = 'none';
+                emptyTripContainer.style.display = 'none';
             }
         }
 
@@ -527,8 +565,11 @@
         }
 
         function calculateNetEarnings() {
+            // Получаем данные о пустом пробеге
+            const emptyTrip = document.getElementById('empty-trip').checked;
+            
             // Сначала рассчитываем себестоимость
-            const distance = parseFloat(document.getElementById('distance').value);
+            let distance = parseFloat(document.getElementById('distance').value);
             const fuelConsumption = parseFloat(document.getElementById('fuelConsumption').value);
             const fuelPrice = parseFloat(document.getElementById('fuelPrice').value);
             const depreciation = parseFloat(document.getElementById('depreciation').value);
@@ -543,9 +584,12 @@
                 return;
             }
             
+            // Учитываем пустой пробег
+            const effectiveDistance = emptyTrip ? distance * 2 : distance;
+            
             // Рассчитываем себестоимость
-            const fuelCost = (fuelConsumption / 100) * distance * fuelPrice;
-            const depreciationCost = depreciation * distance;
+            const fuelCost = (fuelConsumption / 100) * effectiveDistance * fuelPrice;
+            const depreciationCost = depreciation * effectiveDistance;
             const costPrice = fuelCost + depreciationCost + additionalCosts;
             
             // Рассчитываем комиссию и налог
@@ -559,6 +603,7 @@
             const calculation = {
                 mode: 'earn',
                 distance,
+                emptyTrip,
                 fuelConsumption,
                 fuelPrice,
                 depreciation,
@@ -629,13 +674,13 @@
                 document.getElementById('tripPrice').value = calculation.tripPrice;
                 document.getElementById('commission').value = calculation.commissionRate;
                 document.getElementById(calculation.isLegalEntity ? 'legal' : 'individual').checked = true;
+                document.getElementById('empty-trip').checked = calculation.emptyTrip || false;
             }
         }
 
         function showCostResult(calculation) {
             document.getElementById('fuelCost').textContent = calculation.fuelCost.toFixed(2);
             document.getElementById('depreciationCost').textContent = calculation.depreciationCost.toFixed(2);
-            document.getElementById('additionalCostsDisplay').textContent = (calculation.additionalCosts || 0).toFixed(2);
             document.getElementById('totalCost').textContent = calculation.totalCost.toFixed(2);
             
             document.getElementById('cost-result').style.display = 'block';
@@ -656,7 +701,6 @@
             // Также показываем данные о себестоимости
             document.getElementById('fuelCost').textContent = calculation.fuelCost.toFixed(2);
             document.getElementById('depreciationCost').textContent = calculation.depreciationCost.toFixed(2);
-            document.getElementById('additionalCostsDisplay').textContent = (calculation.additionalCosts || 0).toFixed(2);
             document.getElementById('totalCost').textContent = calculation.costPrice.toFixed(2);
             
             document.getElementById('cost-result').style.display = 'none';
@@ -676,14 +720,15 @@
                 historyItem.className = 'history-item';
                 
                 if (item.mode === 'earn') {
+                    const emptyTripText = item.emptyTrip ? " (с порожняком)" : "";
                     historyItem.innerHTML = `
                         <div>${new Date(item.timestamp).toLocaleString()}</div>
-                        <div>${item.distance} км → Чистый заработок: ${item.netEarnings.toFixed(2)} ₽</div>
+                        <div><strong>${item.distance} км${emptyTripText} (${item.tripPrice.toFixed(2)} руб)</strong> → Чистый заработок: <strong>${item.netEarnings.toFixed(2)} руб</strong></div>
                     `;
                 } else {
                     historyItem.innerHTML = `
                         <div>${new Date(item.timestamp).toLocaleString()}</div>
-                        <div>${item.distance} км → Себестоимость: ${item.totalCost.toFixed(2)} ₽</div>
+                        <div><strong>${item.distance} км</strong> → Себестоимость: <strong>${item.totalCost.toFixed(2)} руб</strong></div>
                     `;
                 }
                 
