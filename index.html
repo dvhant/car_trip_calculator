@@ -12,9 +12,9 @@
             --matrix-dark: #0d0208;
             --taxi-yellow: #ffd700;
             --neon-glow: 0 0 5px var(--matrix-green);
-            --font-size: 16px;
-            --font-size-large: 18px;
-            --font-size-xlarge: 22px;
+            --font-size: 18px;
+            --font-size-large: 20px;
+            --font-size-xlarge: 24px;
         }
         * {
             box-sizing: border-box;
@@ -297,7 +297,13 @@
                         <li>Цена поездки: <span id="tripPriceDisplay">0</span> ₽</li>
                         <li>Комиссия сервиса: <span id="commissionCost">0</span> ₽</li>
                         <li>Налог: <span id="taxCost">0</span> ₽</li>
-                        <li>Себестоимость: <span id="costPrice">0</span> ₽</li>
+                        <li id="cost-price-line">
+                            <strong>Себестоимость: 
+                                <span id="earn-fuel-cost">0</span> ₽ (топливо) + 
+                                <span id="earn-depreciation-cost">0</span> ₽ (амортизация) = 
+                                <span id="earn-total-cost">0</span> ₽
+                            </strong>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -319,7 +325,6 @@
             }
         });
 
-        // ==================== АВТОРИЗАЦИЯ ====================
         function handleTelegramAuth() {
             const tg = Telegram.WebApp;
             const user = tg.initDataUnsafe.user;
@@ -397,7 +402,6 @@
             showAuthButton();
         }
 
-        // ==================== ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ ====================
         function toggleMode() {
             const isEarnMode = document.getElementById('mode-switch').checked;
             const earnFields = document.getElementById('earn-fields');
@@ -411,7 +415,6 @@
             }
         }
 
-        // ==================== КАЛЬКУЛЯТОР ====================
         function calculate() {
             const isEarnMode = document.getElementById('mode-switch').checked;
             if (isEarnMode) {
@@ -501,8 +504,8 @@
             localStorage.setItem('last_calculation', JSON.stringify(calculation));
             let history = JSON.parse(localStorage.getItem('calculation_history') || "[]");
             history.unshift(calculation);
-            if (history.length > 10) {
-                history = history.slice(0, 10);
+            if (history.length > 60) {
+                history = history.slice(0, 60);
             }
             localStorage.setItem('calculation_history', JSON.stringify(history));
             updateHistoryList(history);
@@ -574,10 +577,29 @@
         }
 
         function showEarningsResult(calculation) {
+            const emptyTrip = document.getElementById('empty-trip').checked;
+            const costPriceLine = document.getElementById('cost-price-line');
+            if (emptyTrip) {
+                costPriceLine.innerHTML = `
+                    <strong>Себестоимость (обратно пустым): 
+                        <span id="earn-fuel-cost">${calculation.fuelCost.toFixed(2)}</span> ₽ (топливо) + 
+                        <span id="earn-depreciation-cost">${calculation.depreciationCost.toFixed(2)}</span> ₽ (амортизация) = 
+                        <span id="earn-total-cost">${calculation.costPrice.toFixed(2)}</span> ₽
+                    </strong>
+                `;
+            } else {
+                costPriceLine.innerHTML = `
+                    <strong>Себестоимость: 
+                        <span id="earn-fuel-cost">${calculation.fuelCost.toFixed(2)}</span> ₽ (топливо) + 
+                        <span id="earn-depreciation-cost">${calculation.depreciationCost.toFixed(2)}</span> ₽ (амортизация) = 
+                        <span id="earn-total-cost">${calculation.costPrice.toFixed(2)}</span> ₽
+                    </strong>
+                `;
+            }
+
             document.getElementById('tripPriceDisplay').textContent = calculation.tripPrice.toFixed(2);
             document.getElementById('commissionCost').textContent = calculation.commissionCost.toFixed(2);
             document.getElementById('taxCost').textContent = calculation.taxCost.toFixed(2);
-            document.getElementById('costPrice').textContent = calculation.costPrice.toFixed(2);
             document.getElementById('netEarnings').textContent = calculation.netEarnings.toFixed(2);
 
             document.getElementById('cost-result').style.display = 'none';
