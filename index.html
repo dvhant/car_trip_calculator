@@ -12,9 +12,9 @@
             --matrix-dark: #0d0208;
             --taxi-yellow: #ffd700;
             --neon-glow: 0 0 5px var(--matrix-green);
-            --font-size: 16px;
-            --font-size-large: 18px;
-            --font-size-xlarge: 22px;
+            --font-size: 18px;
+            --font-size-large: 20px;
+            --font-size-xlarge: 24px;
         }
         * {
             box-sizing: border-box;
@@ -220,112 +220,62 @@
                     <span class="slider"></span>
                 </label>
                 <span class="mode-switch-label">Заработок</span>
-                <label class="switch" style="margin-left: 20px;">
-                    <input type="checkbox" id="journal-mode-switch" onchange="toggleJournalMode()">
-                    <span class="slider"></span>
-                </label>
-                <span class="mode-switch-label">Журнал</span>
             </div>
-            <div id="journal-fields" style="display: none;">
-                <div class="form-group">
-                    <label for="date">Дата:</label>
-                    <input type="date" id="date">
+            <div class="form-group">
+                <label for="distance">Расстояние (км):</label>
+                <div style="display: flex; align-items: center;">
+                    <input type="number" id="distance" placeholder="Введите километраж" style="flex: 1;">
+                    <div id="empty-trip-container" style="display: none; margin-left: 10px;">
+                        <label class="switch">
+                            <input type="checkbox" id="empty-trip">
+                            <span class="slider"></span>
+                        </label>
+                        <span style="margin-left: 10px; color: var(--taxi-yellow); font-size: var(--font-size);">Обратно пустым</span>
+                    </div>
                 </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                    <label for="fuelConsumption">Расход топлива (л/100км):</label>
+                    <input type="number" id="fuelConsumption" placeholder="Например: 8.5" step="0.1">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="fuelPrice">Цена топлива (руб/литр):</label>
+                    <input type="number" id="fuelPrice" placeholder="Например: 52.30" step="0.01">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                    <label for="depreciation">Амортизация (руб/км):</label>
+                    <input type="number" id="depreciation" placeholder="Например: 5.50" step="0.01">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="additionalCosts">Доп. расходы (руб):</label>
+                    <input type="number" id="additionalCosts" placeholder="Платные дороги..." step="0.01" value="0">
+                </div>
+            </div>
+            <!-- Дополнительные поля для режима заработка -->
+            <div id="earn-fields" class="earn-fields" style="display: none;">
                 <div class="form-row">
                     <div class="form-group" style="flex: 1;">
-                        <label for="odometer-start">Одометр старт:</label>
-                        <input type="number" id="odometer-start" placeholder="Например: 412500">
+                        <label for="tripPrice">Цена поездки (руб):</label>
+                        <input type="number" id="tripPrice" placeholder="Сумма от агрегатора" step="0.01">
                     </div>
                     <div class="form-group" style="flex: 1;">
-                        <label for="odometer-end">Одометр финиш:</label>
-                        <input type="number" id="odometer-end" placeholder="Например: 412800">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group" style="flex: 1;">
-                        <label for="start-time">Начало дня:</label>
-                        <input type="time" id="start-time">
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label for="end-time">Конец дня:</label>
-                        <input type="time" id="end-time">
+                        <label for="commission">Комиссия сервиса (%):</label>
+                        <input type="number" id="commission" placeholder="Например: 20" step="0.1">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Заработано:</label>
-                    <div class="form-row">
-                        <div class="form-group" style="flex: 1;">
-                            <label for="yandex-earnings">Яндекс (руб):</label>
-                            <input type="number" id="yandex-earnings" placeholder="Например: 6000">
-                        </div>
-                        <div class="form-group" style="flex: 1;">
-                            <label for="yandex-commission">Комиссия (%):</label>
-                            <input type="number" id="yandex-commission" placeholder="Например: 21.5">
-                        </div>
+                    <label for="entity-switch">Тип налога:</label>
+                    <div style="display: flex; align-items: center;">
+                        <span style="color: var(--taxi-yellow);">Физлицо (4%)</span>
+                        <label class="switch" style="margin: 0 10px;">
+                            <input type="checkbox" id="entity-switch">
+                            <span class="slider"></span>
+                        </label>
+                        <span style="color: var(--taxi-yellow);">Юрлицо (6%)</span>
                     </div>
-                    <div class="form-row">
-                        <div class="form-group" style="flex: 1;">
-                            <label for="drivee-earnings">Drivee (руб):</label>
-                            <input type="number" id="drivee-earnings" placeholder="Например: 1000">
-                        </div>
-                        <div class="form-group" style="flex: 1;">
-                            <label for="drivee-commission">Комиссия (%):</label>
-                            <input type="number" id="drivee-commission" placeholder="Например: 12">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group" style="flex: 1;">
-                            <label for="maxim-earnings">Максим (руб):</label>
-                            <input type="number" id="maxim-earnings" placeholder="Например: 0">
-                        </div>
-                        <div class="form-group" style="flex: 1;">
-                            <label for="maxim-commission">Комиссия (%):</label>
-                            <input type="number" id="maxim-commission" placeholder="Например: 0">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group" style="flex: 1;">
-                            <label for="levak-earnings">Левак (руб):</label>
-                            <input type="number" id="levak-earnings" placeholder="Например: 0">
-                        </div>
-                        <div class="form-group" style="flex: 1;">
-                            <label for="levak-commission">Комиссия (%):</label>
-                            <input type="number" id="levak-commission" placeholder="Например: 0">
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Расходы:</label>
-                    <div class="form-row">
-                        <div class="form-group" style="flex: 1;">
-                            <label for="fuel-cost-journal">Топливо (руб):</label>
-                            <input type="number" id="fuel-cost-journal" placeholder="Например: 2000">
-                        </div>
-                        <div class="form-group" style="flex: 1;">
-                            <label for="car-wash">Мойка (руб):</label>
-                            <input type="number" id="car-wash" placeholder="Например: 0">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group" style="flex: 1;">
-                            <label for="service-cost">Сервис (руб):</label>
-                            <input type="number" id="service-cost" placeholder="Например: 0">
-                        </div>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group" style="flex: 1;">
-                        <label for="requests-count">Кол-во заявок:</label>
-                        <input type="number" id="requests-count" placeholder="Например: 21">
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label for="average-fuel-consumption">Средний расход топлива (л/100км):</label>
-                        <input type="number" id="average-fuel-consumption" placeholder="Например: 8">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="depreciation-journal">Амортизация (руб/км):</label>
-                    <input type="number" id="depreciation-journal" placeholder="Например: 5">
                 </div>
             </div>
             <button onclick="calculate()">Рассчитать</button>
@@ -356,16 +306,6 @@
                         </li>
                     </ul>
                 </div>
-                <div id="journal-result" style="display: none;">
-                    <p><strong>Общий заработок: <span id="total-earnings">0</span> ₽</strong></p>
-                    <p><strong>Чистыми: <span id="net-earnings-journal">0</span> ₽</strong></p>
-                    <p>Средний чек: <span id="average-check">0</span> ₽</p>
-                    <p>Средний чек чистыми: <span id="average-check-net">0</span> ₽</p>
-                    <p>Заработок в час: <span id="earnings-per-hour">0</span> ₽</p>
-                    <p>Заработок в час чистыми: <span id="earnings-per-hour-net">0</span> ₽</p>
-                    <p>Руб/км: <span id="rub-per-km">0</span> ₽</p>
-                    <p>Руб/км чистыми: <span id="rub-per-km-net">0</span> ₽</p>
-                </div>
             </div>
             <div class="history" id="history-section" style="display: none;">
                 <h3>История расчетов:</h3>
@@ -385,6 +325,83 @@
             }
         });
 
+        function handleTelegramAuth() {
+            const tg = Telegram.WebApp;
+            const user = tg.initDataUnsafe.user;
+            const sessionData = {
+                user,
+                isWebApp: true,
+                authDate: Math.floor(Date.now() / 1000)
+            };
+            localStorage.setItem('tg_auth', JSON.stringify(sessionData));
+            showAppContent(user.first_name || 'Пользователь');
+            loadLastCalculation();
+        }
+
+        function checkSavedSession() {
+            const savedAuth = localStorage.getItem('tg_auth');
+            if (!savedAuth) {
+                showAuthButton();
+                return;
+            }
+            const session = JSON.parse(savedAuth);
+            const sessionExpired = session.authDate && 
+                (Date.now() / 1000 - session.authDate) > 30 * 24 * 60 * 60;
+            if (!sessionExpired) {
+                showAppContent(session.user.first_name || 'Пользователь');
+                loadLastCalculation();
+            } else {
+                localStorage.removeItem('tg_auth');
+                showAuthButton();
+            }
+        }
+
+        function loginWithTelegram() {
+            const botId = "7757050898:AAFMpSVRPtBZeLhYg0d8-xv1PA_kWzTDtxs";
+            if (window.Telegram?.WebApp) {
+                Telegram.WebApp.ready();
+                if (Telegram.WebApp.initDataUnsafe?.user) {
+                    handleTelegramAuth();
+                } else {
+                    showAuthButton();
+                }
+            } else {
+                const randomUser = {
+                    first_name: "Гость",
+                    last_name: "Тестовый",
+                    username: "testuser",
+                    id: Math.floor(Math.random() * 1000000)
+                };
+                if (document.getElementById('remember-me').checked) {
+                    const sessionData = {
+                        user: randomUser,
+                        isWebApp: false,
+                        authDate: Math.floor(Date.now() / 1000)
+                    };
+                    localStorage.setItem('tg_auth', JSON.stringify(sessionData));
+                }
+                showAppContent(randomUser.first_name);
+            }
+        }
+
+        function showAppContent(username) {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+            document.getElementById('username').textContent = username;
+        }
+
+        function showAuthButton() {
+            document.getElementById('auth-section').style.display = 'block';
+            document.getElementById('app-content').style.display = 'none';
+        }
+
+        function logout() {
+            localStorage.removeItem('tg_auth');
+            localStorage.removeItem('last_calculation');
+            localStorage.removeItem('calculation_history');
+            showAuthButton();
+        }
+
         function toggleMode() {
             const isEarnMode = document.getElementById('mode-switch').checked;
             const earnFields = document.getElementById('earn-fields');
@@ -398,98 +415,230 @@
             }
         }
 
-        function toggleJournalMode() {
-            const isJournalMode = document.getElementById('journal-mode-switch').checked;
-            const journalFields = document.getElementById('journal-fields');
-            const calculatorFields = document.getElementById('calculator-fields');
-            if (isJournalMode) {
-                journalFields.style.display = 'block';
-                calculatorFields.style.display = 'none';
+        function calculate() {
+            const isEarnMode = document.getElementById('mode-switch').checked;
+            if (isEarnMode) {
+                calculateNetEarnings();
             } else {
-                journalFields.style.display = 'none';
-                calculatorFields.style.display = 'block';
+                calculateTripCost();
             }
         }
 
-        function calculate() {
-            const isJournalMode = document.getElementById('journal-mode-switch').checked;
-            if (isJournalMode) {
-                calculateJournal();
-            } else {
-                const isEarnMode = document.getElementById('mode-switch').checked;
-                if (isEarnMode) {
-                    calculateNetEarnings();
+        function calculateTripCost() {
+            const distance = parseFloat(document.getElementById('distance').value);
+            const fuelConsumption = parseFloat(document.getElementById('fuelConsumption').value);
+            const fuelPrice = parseFloat(document.getElementById('fuelPrice').value);
+            const depreciation = parseFloat(document.getElementById('depreciation').value);
+            const additionalCosts = parseFloat(document.getElementById('additionalCosts').value) || 0;
+            if (isNaN(distance) || isNaN(fuelConsumption) || isNaN(fuelPrice) || isNaN(depreciation)) {
+                alert("Заполните все основные поля!");
+                return;
+            }
+            const effectiveDistance = document.getElementById('empty-trip')?.checked ? distance * 2 : distance;
+            const fuelCost = (fuelConsumption / 100) * effectiveDistance * fuelPrice;
+            const depreciationCost = depreciation * effectiveDistance;
+            const totalCost = fuelCost + depreciationCost + additionalCosts;
+            const calculation = {
+                mode: 'cost',
+                distance,
+                fuelConsumption,
+                fuelPrice,
+                depreciation,
+                additionalCosts,
+                fuelCost,
+                depreciationCost,
+                totalCost,
+                timestamp: new Date().getTime()
+            };
+            saveCalculation(calculation);
+            showCostResult(calculation);
+        }
+
+        function calculateNetEarnings() {
+            const emptyTrip = document.getElementById('empty-trip').checked;
+            let distance = parseFloat(document.getElementById('distance').value);
+            const fuelConsumption = parseFloat(document.getElementById('fuelConsumption').value);
+            const fuelPrice = parseFloat(document.getElementById('fuelPrice').value);
+            const depreciation = parseFloat(document.getElementById('depreciation').value);
+            const additionalCosts = parseFloat(document.getElementById('additionalCosts').value) || 0;
+            const tripPrice = parseFloat(document.getElementById('tripPrice').value);
+            const commissionRate = parseFloat(document.getElementById('commission').value);
+            const isLegalEntity = document.getElementById('entity-switch').checked;
+            if (isNaN(distance) || isNaN(fuelConsumption) || isNaN(fuelPrice) || isNaN(depreciation) ||
+                isNaN(tripPrice) || isNaN(commissionRate)) {
+                alert("Заполните все необходимые поля!");
+                return;
+            }
+            const effectiveDistance = emptyTrip ? distance * 2 : distance;
+            const fuelCost = (fuelConsumption / 100) * effectiveDistance * fuelPrice;
+            const depreciationCost = depreciation * effectiveDistance;
+            const costPrice = fuelCost + depreciationCost + additionalCosts;
+            const commissionCost = tripPrice * (commissionRate / 100);
+            const taxRate = isLegalEntity ? 6 : 4;
+            const taxCost = tripPrice * (taxRate / 100);
+            const netEarnings = tripPrice - commissionCost - taxCost - costPrice;
+            const calculation = {
+                mode: 'earn',
+                distance,
+                emptyTrip,
+                fuelConsumption,
+                fuelPrice,
+                depreciation,
+                additionalCosts,
+                tripPrice,
+                commissionRate,
+                isLegalEntity,
+                fuelCost,
+                depreciationCost,
+                costPrice,
+                commissionCost,
+                taxCost,
+                netEarnings,
+                timestamp: new Date().getTime()
+            };
+            saveCalculation(calculation);
+            showEarningsResult(calculation);
+        }
+
+        function saveCalculation(calculation) {
+            localStorage.setItem('last_calculation', JSON.stringify(calculation));
+            let history = JSON.parse(localStorage.getItem('calculation_history') || "[]");
+            history.unshift(calculation);
+            if (history.length > 60) {
+                history = history.slice(0, 60);
+            }
+            localStorage.setItem('calculation_history', JSON.stringify(history));
+            updateHistoryList(history);
+        }
+
+        function loadLastCalculation() {
+            const lastCalc = localStorage.getItem('last_calculation');
+            if (lastCalc) {
+                const calculation = JSON.parse(lastCalc);
+                document.getElementById('mode-switch').checked = calculation.mode === 'earn';
+                toggleMode();
+                fillForm(calculation);
+                if (calculation.mode === 'earn') {
+                    showEarningsResult(calculation);
                 } else {
-                    calculateTripCost();
+                    showCostResult(calculation);
+                }
+                const history = JSON.parse(localStorage.getItem('calculation_history') || "[]");
+                if (history.length > 0) {
+                    updateHistoryList(history);
+                    document.getElementById('history-section').style.display = 'block';
                 }
             }
         }
 
-        function calculateJournal() {
-            const odometerStart = parseFloat(document.getElementById('odometer-start').value);
-            const odometerEnd = parseFloat(document.getElementById('odometer-end').value);
-            const startTime = document.getElementById('start-time').value;
-            const endTime = document.getElementById('end-time').value;
-            const yandexEarnings = parseFloat(document.getElementById('yandex-earnings').value) || 0;
-            const yandexCommission = parseFloat(document.getElementById('yandex-commission').value) || 0;
-            const driveeEarnings = parseFloat(document.getElementById('drivee-earnings').value) || 0;
-            const driveeCommission = parseFloat(document.getElementById('drivee-commission').value) || 0;
-            const maximEarnings = parseFloat(document.getElementById('maxim-earnings').value) || 0;
-            const maximCommission = parseFloat(document.getElementById('maxim-commission').value) || 0;
-            const levakEarnings = parseFloat(document.getElementById('levak-earnings').value) || 0;
-            const levakCommission = parseFloat(document.getElementById('levak-commission').value) || 0;
-            const fuelCost = parseFloat(document.getElementById('fuel-cost-journal').value) || 0;
-            const carWash = parseFloat(document.getElementById('car-wash').value) || 0;
-            const serviceCost = parseFloat(document.getElementById('service-cost').value) || 0;
-            const requestsCount = parseFloat(document.getElementById('requests-count').value) || 0;
-            const averageFuelConsumption = parseFloat(document.getElementById('average-fuel-consumption').value) || 0;
-            const depreciation = parseFloat(document.getElementById('depreciation-journal').value) || 0;
-
-            if (isNaN(odometerStart) || isNaN(odometerEnd)) {
-                alert("Заполните одометр!");
-                return;
+        function fillForm(calculation) {
+            document.getElementById('distance').value = calculation.distance;
+            document.getElementById('fuelConsumption').value = calculation.fuelConsumption;
+            document.getElementById('fuelPrice').value = calculation.fuelPrice;
+            document.getElementById('depreciation').value = calculation.depreciation;
+            document.getElementById('additionalCosts').value = calculation.additionalCosts || 0;
+            if (calculation.mode === 'earn') {
+                document.getElementById('tripPrice').value = calculation.tripPrice;
+                document.getElementById('commission').value = calculation.commissionRate;
+                document.getElementById('entity-switch').checked = calculation.isLegalEntity;
+                document.getElementById('empty-trip').checked = calculation.emptyTrip || false;
             }
-
-            const distance = odometerEnd - odometerStart;
-            const totalEarnings = yandexEarnings + driveeEarnings + maximEarnings + levakEarnings;
-            const totalCommissions = (yandexEarnings * (yandexCommission / 100)) +
-                                     (driveeEarnings * (driveeCommission / 100)) +
-                                     (maximEarnings * (maximCommission / 100)) +
-                                     (levakEarnings * (levakCommission / 100));
-            const totalExpenses = fuelCost + carWash + serviceCost + (distance * depreciation);
-            const netEarnings = totalEarnings - totalCommissions - totalExpenses;
-
-            const hoursWorked = calculateHoursWorked(startTime, endTime);
-            const rubPerKm = totalEarnings / distance;
-            const rubPerKmNet = netEarnings / distance;
-            const earningsPerHour = totalEarnings / hoursWorked;
-            const earningsPerHourNet = netEarnings / hoursWorked;
-            const averageCheck = totalEarnings / requestsCount;
-            const averageCheckNet = netEarnings / requestsCount;
-
-            document.getElementById('total-earnings').textContent = totalEarnings.toFixed(2);
-            document.getElementById('net-earnings-journal').textContent = netEarnings.toFixed(2);
-            document.getElementById('average-check').textContent = averageCheck.toFixed(2);
-            document.getElementById('average-check-net').textContent = averageCheckNet.toFixed(2);
-            document.getElementById('earnings-per-hour').textContent = earningsPerHour.toFixed(2);
-            document.getElementById('earnings-per-hour-net').textContent = earningsPerHourNet.toFixed(2);
-            document.getElementById('rub-per-km').textContent = rubPerKm.toFixed(2);
-            document.getElementById('rub-per-km-net').textContent = rubPerKmNet.toFixed(2);
-
-            document.getElementById('cost-result').style.display = 'none';
-            document.getElementById('earn-result').style.display = 'none';
-            document.getElementById('journal-result').style.display = 'block';
-            document.getElementById('result').style.display = 'block';
         }
 
-        function calculateHoursWorked(startTime, endTime) {
-            const [startHours, startMinutes] = startTime.split(':').map(Number);
-            const [endHours, endMinutes] = endTime.split(':').map(Number);
-            const startTotalMinutes = startHours * 60 + startMinutes;
-            const endTotalMinutes = endHours * 60 + endMinutes;
-            let hoursWorked = (endTotalMinutes - startTotalMinutes) / 60;
-            if (hoursWorked < 0) hoursWorked += 24; // Если смена переходит через полночь
-            return hoursWorked;
+        function showCostResult(calculation) {
+            const fuelCost = calculation.fuelCost.toFixed(2);
+            const depreciationCost = calculation.depreciationCost.toFixed(2);
+            const additionalCosts = calculation.additionalCosts.toFixed(2);
+            const totalCost = calculation.totalCost.toFixed(2);
+            const emptyTripText = document.getElementById('empty-trip')?.checked
+                ? ` (с учетом обратной дороги)`
+                : ``;
+
+            document.getElementById('fuelCost').textContent = fuelCost;
+            document.getElementById('depreciationCost').textContent = depreciationCost;
+            document.getElementById('additionalCostsDisplay').textContent = additionalCosts;
+            document.getElementById('totalCost').textContent = totalCost;
+
+            const resultHtml = `
+                <p><strong>Себестоимость${emptyTripText}:</strong></p>
+                <ul>
+                    <li>Топливо: ${fuelCost} ₽</li>
+                    <li>Амортизация: ${depreciationCost} ₽</li>
+                    <li>Доп. расходы: ${additionalCosts} ₽</li>
+                    <li><strong>Итого: ${totalCost} ₽</strong></li>
+                </ul>
+            `;
+            document.getElementById('cost-result').innerHTML = resultHtml;
+            document.getElementById('cost-result').style.display = 'block';
+            document.getElementById('earn-result').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('history-section').style.display = 'block';
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showEarningsResult(calculation) {
+            const emptyTrip = document.getElementById('empty-trip').checked;
+            const costPriceLine = document.getElementById('cost-price-line');
+            if (emptyTrip) {
+                costPriceLine.innerHTML = `
+                    <strong>Себестоимость (обратно пустым): 
+                        <span id="earn-fuel-cost">${calculation.fuelCost.toFixed(2)}</span> ₽ (топливо) + 
+                        <span id="earn-depreciation-cost">${calculation.depreciationCost.toFixed(2)}</span> ₽ (амортизация) = 
+                        <span id="earn-total-cost">${calculation.costPrice.toFixed(2)}</span> ₽
+                    </strong>
+                `;
+            } else {
+                costPriceLine.innerHTML = `
+                    <strong>Себестоимость: 
+                        <span id="earn-fuel-cost">${calculation.fuelCost.toFixed(2)}</span> ₽ (топливо) + 
+                        <span id="earn-depreciation-cost">${calculation.depreciationCost.toFixed(2)}</span> ₽ (амортизация) = 
+                        <span id="earn-total-cost">${calculation.costPrice.toFixed(2)}</span> ₽
+                    </strong>
+                `;
+            }
+
+            document.getElementById('tripPriceDisplay').textContent = calculation.tripPrice.toFixed(2);
+            document.getElementById('commissionCost').textContent = calculation.commissionCost.toFixed(2);
+            document.getElementById('taxCost').textContent = calculation.taxCost.toFixed(2);
+            document.getElementById('netEarnings').textContent = calculation.netEarnings.toFixed(2);
+
+            document.getElementById('cost-result').style.display = 'none';
+            document.getElementById('earn-result').style.display = 'block';
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('history-section').style.display = 'block';
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateHistoryList(history) {
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            history.forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                const emptyTripText = item.emptyTrip ? " (обратно пустым)" : "";
+                if (item.mode === 'earn') {
+                    historyItem.innerHTML = `
+                        <div>${new Date(item.timestamp).toLocaleString()}</div>
+                        <div><strong>${item.distance} км${emptyTripText} (${item.tripPrice.toFixed(2)} ₽)</strong> → Чистый заработок: <strong>${item.netEarnings.toFixed(2)} ₽</strong></div>
+                    `;
+                } else {
+                    historyItem.innerHTML = `
+                        <div>${new Date(item.timestamp).toLocaleString()}</div>
+                        <div><strong>${item.distance} км${emptyTripText}</strong> → Себестоимость: <strong>${item.totalCost.toFixed(2)} ₽</strong></div>
+                    `;
+                }
+                historyItem.onclick = () => {
+                    document.getElementById('mode-switch').checked = item.mode === 'earn';
+                    toggleMode();
+                    fillForm(item);
+                    if (item.mode === 'earn') {
+                        showEarningsResult(item);
+                    } else {
+                        showCostResult(item);
+                    }
+                };
+                historyList.appendChild(historyItem);
+            });
         }
     </script>
 </body>
