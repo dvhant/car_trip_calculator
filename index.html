@@ -159,6 +159,89 @@
         .history-item:hover {
             background-color: rgba(0, 255, 65, 0.1);
         }
+        
+        /* Стили для переключателя режимов */
+        .mode-switch {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .mode-switch-label {
+            margin: 0 10px;
+            color: var(--taxi-yellow);
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 255, 65, 0.2);
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--matrix-green);
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: rgba(255, 215, 0, 0.3);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+            background-color: var(--taxi-yellow);
+        }
+        
+        /* Стили для дополнительных полей режима заработка */
+        .earn-fields {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--taxi-yellow);
+        }
+        
+        .entity-type {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+        }
+        
+        .entity-option {
+            display: flex;
+            align-items: center;
+        }
+        
+        .entity-option input {
+            width: auto;
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
@@ -180,6 +263,15 @@
         </div>
         
         <div class="calculator">
+            <div class="mode-switch">
+                <span class="mode-switch-label">Себестоимость</span>
+                <label class="switch">
+                    <input type="checkbox" id="mode-switch" onchange="toggleMode()">
+                    <span class="slider"></span>
+                </label>
+                <span class="mode-switch-label">Заработок</span>
+            </div>
+            
             <div class="form-group">
                 <label for="distance">Расстояние (км):</label>
                 <input type="number" id="distance" placeholder="Введите километраж">
@@ -205,18 +297,54 @@
                 <input type="number" id="additionalCosts" placeholder="Платные дороги..." step="0.01" value="0">
             </div>
             
-            <button onclick="calculateTripCost()">Рассчитать</button>
+            <!-- Дополнительные поля для режима заработка -->
+            <div id="earn-fields" class="earn-fields">
+                <div class="form-group">
+                    <label for="tripPrice">Цена поездки (руб):</label>
+                    <input type="number" id="tripPrice" placeholder="Сумма от агрегатора" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="commission">Комиссия сервиса (%):</label>
+                    <input type="number" id="commission" placeholder="Например: 20" step="0.1">
+                </div>
+                
+                <div class="entity-type">
+                    <div class="entity-option">
+                        <input type="radio" id="individual" name="entity" value="individual" checked>
+                        <label for="individual">Физлицо (4%)</label>
+                    </div>
+                    <div class="entity-option">
+                        <input type="radio" id="legal" name="entity" value="legal">
+                        <label for="legal">Юрлицо (6%)</label>
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="calculate()">Рассчитать</button>
             <button onclick="logout()" class="logout-btn">Выйти</button>
             
             <div id="result" class="result">
                 <h3>Результат:</h3>
-                <p>Общая стоимость: <span id="totalCost">0</span> ₽</p>
-                <p>Детализация:</p>
-                <ul>
-                    <li>Топливо: <span id="fuelCost">0</span> ₽</li>
-                    <li>Амортизация: <span id="depreciationCost">0</span> ₽</li>
-                    <li>Доп. расходы: <span id="additionalCostsDisplay">0</span> ₽</li>
-                </ul>
+                <div id="cost-result">
+                    <p>Общая стоимость: <span id="totalCost">0</span> ₽</p>
+                    <p>Детализация:</p>
+                    <ul>
+                        <li>Топливо: <span id="fuelCost">0</span> ₽</li>
+                        <li>Амортизация: <span id="depreciationCost">0</span> ₽</li>
+                        <li>Доп. расходы: <span id="additionalCostsDisplay">0</span> ₽</li>
+                    </ul>
+                </div>
+                <div id="earn-result" style="display: none;">
+                    <p>Чистый заработок: <span id="netEarnings">0</span> ₽</p>
+                    <p>Детализация:</p>
+                    <ul>
+                        <li>Цена поездки: <span id="tripPriceDisplay">0</span> ₽</li>
+                        <li>Комиссия сервиса: <span id="commissionCost">0</span> ₽</li>
+                        <li>Налог: <span id="taxCost">0</span> ₽</li>
+                        <li>Себестоимость: <span id="costPrice">0</span> ₽</li>
+                    </ul>
+                </div>
             </div>
             
             <div class="history" id="history-section" style="display: none;">
@@ -342,7 +470,29 @@
             showAuthButton();
         }
 
+        // ==================== ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ ====================
+        function toggleMode() {
+            const isEarnMode = document.getElementById('mode-switch').checked;
+            const earnFields = document.getElementById('earn-fields');
+            
+            if (isEarnMode) {
+                earnFields.style.display = 'block';
+            } else {
+                earnFields.style.display = 'none';
+            }
+        }
+
         // ==================== КАЛЬКУЛЯТОР ====================
+        function calculate() {
+            const isEarnMode = document.getElementById('mode-switch').checked;
+            
+            if (isEarnMode) {
+                calculateNetEarnings();
+            } else {
+                calculateTripCost();
+            }
+        }
+
         function calculateTripCost() {
             const distance = parseFloat(document.getElementById('distance').value);
             const fuelConsumption = parseFloat(document.getElementById('fuelConsumption').value);
@@ -360,6 +510,7 @@
             const totalCost = fuelCost + depreciationCost + additionalCosts;
             
             const calculation = {
+                mode: 'cost',
                 distance,
                 fuelConsumption,
                 fuelPrice,
@@ -372,7 +523,60 @@
             };
             
             saveCalculation(calculation);
-            showResult(calculation);
+            showCostResult(calculation);
+        }
+
+        function calculateNetEarnings() {
+            // Сначала рассчитываем себестоимость
+            const distance = parseFloat(document.getElementById('distance').value);
+            const fuelConsumption = parseFloat(document.getElementById('fuelConsumption').value);
+            const fuelPrice = parseFloat(document.getElementById('fuelPrice').value);
+            const depreciation = parseFloat(document.getElementById('depreciation').value);
+            const additionalCosts = parseFloat(document.getElementById('additionalCosts').value) || 0;
+            const tripPrice = parseFloat(document.getElementById('tripPrice').value);
+            const commissionRate = parseFloat(document.getElementById('commission').value);
+            const isLegalEntity = document.getElementById('legal').checked;
+            
+            if (isNaN(distance) || isNaN(fuelConsumption) || isNaN(fuelPrice) || isNaN(depreciation) || 
+                isNaN(tripPrice) || isNaN(commissionRate)) {
+                alert("Заполните все необходимые поля!");
+                return;
+            }
+            
+            // Рассчитываем себестоимость
+            const fuelCost = (fuelConsumption / 100) * distance * fuelPrice;
+            const depreciationCost = depreciation * distance;
+            const costPrice = fuelCost + depreciationCost + additionalCosts;
+            
+            // Рассчитываем комиссию и налог
+            const commissionCost = tripPrice * (commissionRate / 100);
+            const taxRate = isLegalEntity ? 6 : 4;
+            const taxCost = tripPrice * (taxRate / 100);
+            
+            // Рассчитываем чистый заработок
+            const netEarnings = tripPrice - commissionCost - taxCost - costPrice;
+            
+            const calculation = {
+                mode: 'earn',
+                distance,
+                fuelConsumption,
+                fuelPrice,
+                depreciation,
+                additionalCosts,
+                tripPrice,
+                commissionRate,
+                isLegalEntity,
+                fuelCost,
+                depreciationCost,
+                costPrice,
+                commissionCost,
+                taxCost,
+                netEarnings,
+                timestamp: new Date().getTime()
+            };
+            
+            saveCalculation(calculation);
+            showEarningsResult(calculation);
         }
 
         function saveCalculation(calculation) {
@@ -393,7 +597,18 @@
             const lastCalc = localStorage.getItem('last_calculation');
             if (lastCalc) {
                 const calculation = JSON.parse(lastCalc);
+                
+                // Устанавливаем режим
+                document.getElementById('mode-switch').checked = calculation.mode === 'earn';
+                toggleMode();
+                
                 fillForm(calculation);
+                
+                if (calculation.mode === 'earn') {
+                    showEarningsResult(calculation);
+                } else {
+                    showCostResult(calculation);
+                }
                 
                 const history = JSON.parse(localStorage.getItem('calculation_history') || "[]");
                 if (history.length > 0) {
@@ -408,15 +623,44 @@
             document.getElementById('fuelConsumption').value = calculation.fuelConsumption;
             document.getElementById('fuelPrice').value = calculation.fuelPrice;
             document.getElementById('depreciation').value = calculation.depreciation;
-            document.getElementById('additionalCosts').value = calculation.additionalCosts;
+            document.getElementById('additionalCosts').value = calculation.additionalCosts || 0;
+            
+            if (calculation.mode === 'earn') {
+                document.getElementById('tripPrice').value = calculation.tripPrice;
+                document.getElementById('commission').value = calculation.commissionRate;
+                document.getElementById(calculation.isLegalEntity ? 'legal' : 'individual').checked = true;
+            }
         }
 
-        function showResult(calculation) {
+        function showCostResult(calculation) {
             document.getElementById('fuelCost').textContent = calculation.fuelCost.toFixed(2);
             document.getElementById('depreciationCost').textContent = calculation.depreciationCost.toFixed(2);
-            document.getElementById('additionalCostsDisplay').textContent = calculation.additionalCosts.toFixed(2);
+            document.getElementById('additionalCostsDisplay').textContent = (calculation.additionalCosts || 0).toFixed(2);
             document.getElementById('totalCost').textContent = calculation.totalCost.toFixed(2);
             
+            document.getElementById('cost-result').style.display = 'block';
+            document.getElementById('earn-result').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('history-section').style.display = 'block';
+            
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showEarningsResult(calculation) {
+            document.getElementById('tripPriceDisplay').textContent = calculation.tripPrice.toFixed(2);
+            document.getElementById('commissionCost').textContent = calculation.commissionCost.toFixed(2);
+            document.getElementById('taxCost').textContent = calculation.taxCost.toFixed(2);
+            document.getElementById('costPrice').textContent = calculation.costPrice.toFixed(2);
+            document.getElementById('netEarnings').textContent = calculation.netEarnings.toFixed(2);
+            
+            // Также показываем данные о себестоимости
+            document.getElementById('fuelCost').textContent = calculation.fuelCost.toFixed(2);
+            document.getElementById('depreciationCost').textContent = calculation.depreciationCost.toFixed(2);
+            document.getElementById('additionalCostsDisplay').textContent = (calculation.additionalCosts || 0).toFixed(2);
+            document.getElementById('totalCost').textContent = calculation.costPrice.toFixed(2);
+            
+            document.getElementById('cost-result').style.display = 'none';
+            document.getElementById('earn-result').style.display = 'block';
             document.getElementById('result').style.display = 'block';
             document.getElementById('history-section').style.display = 'block';
             
@@ -430,14 +674,31 @@
             history.forEach((item, index) => {
                 const historyItem = document.createElement('div');
                 historyItem.className = 'history-item';
-                historyItem.innerHTML = `
-                    <div>${new Date(item.timestamp).toLocaleString()}</div>
-                    <div>${item.distance} км → ${item.totalCost.toFixed(2)} ₽</div>
-                `;
+                
+                if (item.mode === 'earn') {
+                    historyItem.innerHTML = `
+                        <div>${new Date(item.timestamp).toLocaleString()}</div>
+                        <div>${item.distance} км → Чистый заработок: ${item.netEarnings.toFixed(2)} ₽</div>
+                    `;
+                } else {
+                    historyItem.innerHTML = `
+                        <div>${new Date(item.timestamp).toLocaleString()}</div>
+                        <div>${item.distance} км → Себестоимость: ${item.totalCost.toFixed(2)} ₽</div>
+                    `;
+                }
                 
                 historyItem.onclick = () => {
+                    // Устанавливаем правильный режим
+                    document.getElementById('mode-switch').checked = item.mode === 'earn';
+                    toggleMode();
+                    
                     fillForm(item);
-                    showResult(item);
+                    
+                    if (item.mode === 'earn') {
+                        showEarningsResult(item);
+                    } else {
+                        showCostResult(item);
+                    }
                 };
                 
                 historyList.appendChild(historyItem);
