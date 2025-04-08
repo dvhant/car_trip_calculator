@@ -300,7 +300,8 @@
                         <li id="cost-price-line">
                             <strong>Себестоимость: 
                                 <span id="earn-fuel-cost">0</span> ₽ (топливо) + 
-                                <span id="earn-depreciation-cost">0</span> ₽ (амортизация) = 
+                                <span id="earn-depreciation-cost">0</span> ₽ (амортизация) + 
+                                <span id="earn-additional-cost">0</span> ₽ (доп. расходы) = 
                                 <span id="earn-total-cost">0</span> ₽
                             </strong>
                         </li>
@@ -579,11 +580,13 @@
         function showEarningsResult(calculation) {
             const emptyTrip = document.getElementById('empty-trip').checked;
             const costPriceLine = document.getElementById('cost-price-line');
+            
             if (emptyTrip) {
                 costPriceLine.innerHTML = `
                     <strong>Себестоимость (обратно пустым): 
                         <span id="earn-fuel-cost">${calculation.fuelCost.toFixed(2)}</span> ₽ (топливо) + 
-                        <span id="earn-depreciation-cost">${calculation.depreciationCost.toFixed(2)}</span> ₽ (амортизация) = 
+                        <span id="earn-depreciation-cost">${calculation.depreciationCost.toFixed(2)}</span> ₽ (амортизация) + 
+                        <span id="earn-additional-cost">${calculation.additionalCosts.toFixed(2)}</span> ₽ (доп. расходы) = 
                         <span id="earn-total-cost">${calculation.costPrice.toFixed(2)}</span> ₽
                     </strong>
                 `;
@@ -591,7 +594,8 @@
                 costPriceLine.innerHTML = `
                     <strong>Себестоимость: 
                         <span id="earn-fuel-cost">${calculation.fuelCost.toFixed(2)}</span> ₽ (топливо) + 
-                        <span id="earn-depreciation-cost">${calculation.depreciationCost.toFixed(2)}</span> ₽ (амортизация) = 
+                        <span id="earn-depreciation-cost">${calculation.depreciationCost.toFixed(2)}</span> ₽ (амортизация) + 
+                        <span id="earn-additional-cost">${calculation.additionalCosts.toFixed(2)}</span> ₽ (доп. расходы) = 
                         <span id="earn-total-cost">${calculation.costPrice.toFixed(2)}</span> ₽
                     </strong>
                 `;
