@@ -148,51 +148,36 @@
             display: flex;
             justify-content: center;
             margin-bottom: 20px;
-            position: relative;
         }
-        .mode-switch-label {
-            margin: 0 10px;
-            color: var(--taxi-yellow);
-        }
-        .switch {
+        .mode-switch label {
             position: relative;
             display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
+            padding: 5px 15px;
+            font-size: var(--font-size);
+            color: var(--taxi-yellow);
             cursor: pointer;
+        }
+        .mode-switch input[type="radio"] {
+            display: none;
+        }
+        .mode-switch input[type="radio"] + span::before {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
             background-color: rgba(0, 255, 65, 0.2);
-            transition: .4s;
-            border-radius: 34px;
+            border-radius: 30px;
+            transition: all 0.3s ease;
         }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
+        .mode-switch input[type="radio"]:checked + span::before {
             background-color: var(--matrix-green);
-            transition: .4s;
-            border-radius: 50%;
         }
-        input:checked + .slider {
-            background-color: rgba(255, 215, 0, 0.3);
-        }
-        input:checked + .slider:before {
-            transform: translateX(26px);
-            background-color: var(--taxi-yellow);
+        .mode-switch input[type="radio"] + span {
+            position: relative;
+            z-index: 1;
         }
     </style>
 </head>
@@ -214,55 +199,59 @@
         </div>
         <div class="calculator">
             <div class="mode-switch">
-                <span class="mode-switch-label">Себестоимость</span>
-                <label class="switch">
-                    <input type="checkbox" id="mode-switch" onchange="toggleMode()">
-                    <span class="slider"></span>
+                <label>
+                    <input type="radio" name="mode" value="cost" checked onclick="toggleMode('cost')">
+                    <span>Себестоимость</span>
                 </label>
-                <span class="mode-switch-label">Заработок</span>
-                <label class="switch" style="margin-left: 20px;">
-                    <input type="checkbox" id="day-summary-mode" onchange="toggleDaySummaryMode()">
-                    <span class="slider"></span>
+                <label>
+                    <input type="radio" name="mode" value="earn" onclick="toggleMode('earn')">
+                    <span>Заработок</span>
                 </label>
-                <span class="mode-switch-label">Итоги дня</span>
+                <label>
+                    <input type="radio" name="mode" value="day-summary" onclick="toggleMode('day-summary')">
+                    <span>Итоги дня</span>
+                </label>
             </div>
             
-            <div class="form-group">
-                <label for="distance">Расстояние (км):</label>
-                <div style="display: flex; align-items: center;">
-                    <input type="number" id="distance" placeholder="Введите километраж" style="flex: 1;">
-                    <div id="empty-trip-container" style="display: none; margin-left: 10px;">
-                        <label class="switch">
-                            <input type="checkbox" id="empty-trip">
-                            <span class="slider"></span>
-                        </label>
-                        <span style="margin-left: 10px; color: var(--taxi-yellow); font-size: var(--font-size);">Обратно пустым</span>
+            <!-- Поля для режима "Себестоимость" -->
+            <div id="cost-fields" style="display: block;">
+                <div class="form-group">
+                    <label for="distance">Расстояние (км):</label>
+                    <div style="display: flex; align-items: center;">
+                        <input type="number" id="distance" placeholder="Введите километраж" style="flex: 1;">
+                        <div id="empty-trip-container" style="display: none; margin-left: 10px;">
+                            <label class="switch">
+                                <input type="checkbox" id="empty-trip">
+                                <span class="slider"></span>
+                            </label>
+                            <span style="margin-left: 10px; color: var(--taxi-yellow); font-size: var(--font-size);">Обратно пустым</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="fuelConsumption">Расход топлива (л/100км):</label>
+                        <input type="number" id="fuelConsumption" placeholder="Например: 8.5" step="0.1">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="fuelPrice">Цена топлива (руб/литр):</label>
+                        <input type="number" id="fuelPrice" placeholder="Например: 52.30" step="0.01">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="depreciation">Амортизация (руб/км):</label>
+                        <input type="number" id="depreciation" placeholder="Например: 5.50" step="0.01">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="additionalCosts">Доп. расходы (руб):</label>
+                        <input type="number" id="additionalCosts" placeholder="Платные дороги..." step="0.01" value="0">
                     </div>
                 </div>
             </div>
-            <div class="form-row">
-                <div class="form-group" style="flex: 1;">
-                    <label for="fuelConsumption">Расход топлива (л/100км):</label>
-                    <input type="number" id="fuelConsumption" placeholder="Например: 8.5" step="0.1">
-                </div>
-                <div class="form-group" style="flex: 1;">
-                    <label for="fuelPrice">Цена топлива (руб/литр):</label>
-                    <input type="number" id="fuelPrice" placeholder="Например: 52.30" step="0.01">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group" style="flex: 1;">
-                    <label for="depreciation">Амортизация (руб/км):</label>
-                    <input type="number" id="depreciation" placeholder="Например: 5.50" step="0.01">
-                </div>
-                <div class="form-group" style="flex: 1;">
-                    <label for="additionalCosts">Доп. расходы (руб):</label>
-                    <input type="number" id="additionalCosts" placeholder="Платные дороги..." step="0.01" value="0">
-                </div>
-            </div>
             
-            <!-- Дополнительные поля для режима заработка -->
-            <div id="earn-fields" class="earn-fields" style="display: none;">
+            <!-- Поля для режима "Заработок" -->
+            <div id="earn-fields" style="display: none;">
                 <div class="form-row">
                     <div class="form-group" style="flex: 1;">
                         <label for="tripPrice">Цена поездки (руб):</label>
@@ -314,9 +303,11 @@
                 </div>
             </div>
             
+            <!-- Кнопка расчета и выхода -->
             <button onclick="calculate()">Рассчитать</button>
             <button onclick="logout()" class="logout-btn">Выйти</button>
             
+            <!-- Результаты -->
             <div id="result" class="result">
                 <h3>Результат:</h3>
                 <div id="cost-result">
@@ -344,8 +335,6 @@
                         </li>
                     </ul>
                 </div>
-                
-                <!-- Результаты для режима "Итоги дня" -->
                 <div id="day-summary-result" style="display: none;">
                     <h3>Итоги дня:</h3>
                     <ul>
@@ -361,6 +350,7 @@
                 </div>
             </div>
             
+            <!-- История расчетов -->
             <div class="history" id="history-section" style="display: none;">
                 <h3>История расчетов:</h3>
                 <div id="history-list"></div>
@@ -378,7 +368,7 @@
                 checkSavedSession();
             }
         });
-        
+
         function handleTelegramAuth() {
             const tg = Telegram.WebApp;
             const user = tg.initDataUnsafe.user;
@@ -391,7 +381,7 @@
             showAppContent(user.first_name || 'Пользователь');
             loadLastCalculation();
         }
-        
+
         function checkSavedSession() {
             const savedAuth = localStorage.getItem('tg_auth');
             if (!savedAuth) {
@@ -409,7 +399,7 @@
                 showAuthButton();
             }
         }
-        
+
         function loginWithTelegram() {
             const botId = "7757050898:AAFMpSVRPtBZeLhYg0d8-xv1PA_kWzTDtxs";
             if (window.Telegram?.WebApp) {
@@ -437,92 +427,86 @@
                 showAppContent(randomUser.first_name);
             }
         }
-        
+
         function showAppContent(username) {
             document.getElementById('auth-section').style.display = 'none';
             document.getElementById('app-content').style.display = 'block';
             document.getElementById('username').textContent = username;
         }
-        
+
         function showAuthButton() {
             document.getElementById('auth-section').style.display = 'block';
             document.getElementById('app-content').style.display = 'none';
         }
-        
+
         function logout() {
             localStorage.removeItem('tg_auth');
             localStorage.removeItem('last_calculation');
             localStorage.removeItem('calculation_history');
             showAuthButton();
         }
-        
-        function toggleMode() {
-            const isEarnMode = document.getElementById('mode-switch').checked;
+
+        function toggleMode(mode) {
+            const costFields = document.getElementById('cost-fields');
             const earnFields = document.getElementById('earn-fields');
-            const emptyTripContainer = document.getElementById('empty-trip-container');
-            const daySummaryMode = document.getElementById('day-summary-mode');
             const daySummaryFields = document.getElementById('day-summary-fields');
-            
-            if (isEarnMode) {
-                earnFields.style.display = 'block';
-                emptyTripContainer.style.display = 'block';
-                daySummaryMode.checked = false;
-                daySummaryFields.style.display = 'none';
-            } else {
-                earnFields.style.display = 'none';
-                emptyTripContainer.style.display = 'none';
-                daySummaryMode.checked = false;
-                daySummaryFields.style.display = 'none';
+
+            costFields.style.display = 'none';
+            earnFields.style.display = 'none';
+            daySummaryFields.style.display = 'none';
+
+            switch (mode) {
+                case 'cost':
+                    costFields.style.display = 'block';
+                    break;
+                case 'earn':
+                    earnFields.style.display = 'block';
+                    break;
+                case 'day-summary':
+                    daySummaryFields.style.display = 'block';
+                    break;
             }
         }
-        
-        function toggleDaySummaryMode() {
-            const isDaySummaryMode = document.getElementById('day-summary-mode').checked;
-            const daySummaryFields = document.getElementById('day-summary-fields');
-            const modeSwitch = document.getElementById('mode-switch');
-            const earnFields = document.getElementById('earn-fields');
-            const emptyTripContainer = document.getElementById('empty-trip-container');
-            
-            if (isDaySummaryMode) {
-                daySummaryFields.style.display = 'block';
-                modeSwitch.checked = false;
-                earnFields.style.display = 'none';
-                emptyTripContainer.style.display = 'none';
-            } else {
-                daySummaryFields.style.display = 'none';
-            }
-        }
-        
+
         function calculate() {
-            const isEarnMode = document.getElementById('mode-switch').checked;
-            const isDaySummaryMode = document.getElementById('day-summary-mode').checked;
-            
-            if (isEarnMode) {
-                calculateNetEarnings();
-            } else if (isDaySummaryMode) {
-                calculateDaySummary();
-            } else {
-                calculateTripCost();
+            const modeInputs = document.getElementsByName('mode');
+            let selectedMode = 'cost';
+            modeInputs.forEach(input => {
+                if (input.checked) {
+                    selectedMode = input.value;
+                }
+            });
+
+            switch (selectedMode) {
+                case 'cost':
+                    calculateTripCost();
+                    break;
+                case 'earn':
+                    calculateNetEarnings();
+                    break;
+                case 'day-summary':
+                    calculateDaySummary();
+                    break;
             }
         }
-        
+
         function calculateTripCost() {
             const distance = parseFloat(document.getElementById('distance').value);
             const fuelConsumption = parseFloat(document.getElementById('fuelConsumption').value);
             const fuelPrice = parseFloat(document.getElementById('fuelPrice').value);
             const depreciation = parseFloat(document.getElementById('depreciation').value);
             const additionalCosts = parseFloat(document.getElementById('additionalCosts').value) || 0;
-            
+
             if (isNaN(distance) || isNaN(fuelConsumption) || isNaN(fuelPrice) || isNaN(depreciation)) {
                 alert("Заполните все основные поля!");
                 return;
             }
-            
+
             const effectiveDistance = document.getElementById('empty-trip')?.checked ? distance * 2 : distance;
             const fuelCost = (fuelConsumption / 100) * effectiveDistance * fuelPrice;
             const depreciationCost = depreciation * effectiveDistance;
             const totalCost = fuelCost + depreciationCost + additionalCosts;
-            
+
             const calculation = {
                 mode: 'cost',
                 distance,
@@ -535,11 +519,11 @@
                 totalCost,
                 timestamp: new Date().getTime()
             };
-            
+
             saveCalculation(calculation);
             showCostResult(calculation);
         }
-        
+
         function calculateNetEarnings() {
             const emptyTrip = document.getElementById('empty-trip').checked;
             let distance = parseFloat(document.getElementById('distance').value);
@@ -550,13 +534,13 @@
             const tripPrice = parseFloat(document.getElementById('tripPrice').value);
             const commissionRate = parseFloat(document.getElementById('commission').value);
             const isLegalEntity = document.getElementById('entity-switch').checked;
-            
+
             if (isNaN(distance) || isNaN(fuelConsumption) || isNaN(fuelPrice) || isNaN(depreciation) ||
                 isNaN(tripPrice) || isNaN(commissionRate)) {
                 alert("Заполните все необходимые поля!");
                 return;
             }
-            
+
             const effectiveDistance = emptyTrip ? distance * 2 : distance;
             const fuelCost = (fuelConsumption / 100) * effectiveDistance * fuelPrice;
             const depreciationCost = depreciation * effectiveDistance;
@@ -565,7 +549,7 @@
             const taxRate = isLegalEntity ? 6 : 4;
             const taxCost = tripPrice * (taxRate / 100);
             const netEarnings = tripPrice - commissionCost - taxCost - costPrice;
-            
+
             const calculation = {
                 mode: 'earn',
                 distance,
@@ -585,11 +569,11 @@
                 netEarnings,
                 timestamp: new Date().getTime()
             };
-            
+
             saveCalculation(calculation);
             showEarningsResult(calculation);
         }
-        
+
         function calculateDaySummary() {
             const distance = parseFloat(document.getElementById('distance').value);
             const fuelConsumption = parseFloat(document.getElementById('fuelConsumption').value);
@@ -600,27 +584,24 @@
             const startTime = document.getElementById('start-time').value;
             const endTime = document.getElementById('end-time').value;
             const breakTime = parseInt(document.getElementById('break-time').value) || 0;
-            
+
             if (isNaN(distance) || isNaN(fuelConsumption) || isNaN(fuelPrice) || 
                 isNaN(depreciation) || isNaN(yandexEarnings) || isNaN(orderCount) ||
                 !startTime || !endTime) {
                 alert("Заполните все необходимые поля!");
                 return;
             }
-            
-            // Расчет времени работы
+
             const start = new Date(`2023-01-01T${startTime}:00`);
             const end = new Date(`2023-01-01T${endTime}:00`);
-            let workTime = (end - start) / 1000 / 60; // В минутах
+            let workTime = (end - start) / 1000 / 60;
             workTime -= breakTime;
             const workHours = workTime / 60;
-            
-            // Расходы
+
             const fuelCost = (fuelConsumption / 100) * distance * fuelPrice;
             const depreciationCost = depreciation * distance;
             const totalCost = fuelCost + depreciationCost;
-            
-            // Итоги
+
             const cleanEarnings = yandexEarnings - totalCost;
             const cleanHourly = cleanEarnings / workHours;
             const grossHourly = yandexEarnings / workHours;
@@ -629,8 +610,7 @@
             const avgCheck = yandexEarnings / orderCount;
             const ordersPerHour = orderCount / workHours;
             const avgDistance = distance / orderCount;
-            
-            // Отображение результатов
+
             document.getElementById('clean-earnings').textContent = cleanEarnings.toFixed(2);
             document.getElementById('clean-hourly').textContent = cleanHourly.toFixed(2);
             document.getElementById('gross-hourly').textContent = grossHourly.toFixed(2);
@@ -639,7 +619,7 @@
             document.getElementById('avg-check').textContent = avgCheck.toFixed(2);
             document.getElementById('orders-per-hour').textContent = ordersPerHour.toFixed(2);
             document.getElementById('avg-distance').textContent = avgDistance.toFixed(2);
-            
+
             document.getElementById('day-summary-result').style.display = 'block';
             document.getElementById('cost-result').style.display = 'none';
             document.getElementById('earn-result').style.display = 'none';
@@ -647,7 +627,7 @@
             document.getElementById('history-section').style.display = 'block';
             document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
         }
-        
+
         function saveCalculation(calculation) {
             localStorage.setItem('last_calculation', JSON.stringify(calculation));
             let history = JSON.parse(localStorage.getItem('calculation_history') || "[]");
@@ -658,18 +638,29 @@
             localStorage.setItem('calculation_history', JSON.stringify(history));
             updateHistoryList(history);
         }
-        
+
         function loadLastCalculation() {
             const lastCalc = localStorage.getItem('last_calculation');
             if (lastCalc) {
                 const calculation = JSON.parse(lastCalc);
-                document.getElementById('mode-switch').checked = calculation.mode === 'earn';
-                toggleMode();
+                const modeInputs = document.getElementsByName('mode');
+                modeInputs.forEach(input => {
+                    if (input.value === calculation.mode) {
+                        input.checked = true;
+                    }
+                });
+                toggleMode(calculation.mode);
                 fillForm(calculation);
-                if (calculation.mode === 'earn') {
-                    showEarningsResult(calculation);
-                } else {
-                    showCostResult(calculation);
+                switch (calculation.mode) {
+                    case 'cost':
+                        showCostResult(calculation);
+                        break;
+                    case 'earn':
+                        showEarningsResult(calculation);
+                        break;
+                    case 'day-summary':
+                        // Для режима "Итоги дня" результаты не сохраняются
+                        break;
                 }
                 const history = JSON.parse(localStorage.getItem('calculation_history') || "[]");
                 if (history.length > 0) {
@@ -678,7 +669,7 @@
                 }
             }
         }
-        
+
         function fillForm(calculation) {
             document.getElementById('distance').value = calculation.distance;
             document.getElementById('fuelConsumption').value = calculation.fuelConsumption;
@@ -692,7 +683,7 @@
                 document.getElementById('empty-trip').checked = calculation.emptyTrip || false;
             }
         }
-        
+
         function showCostResult(calculation) {
             const fuelCost = calculation.fuelCost.toFixed(2);
             const depreciationCost = calculation.depreciationCost.toFixed(2);
@@ -722,7 +713,7 @@
             document.getElementById('history-section').style.display = 'block';
             document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
         }
-        
+
         function showEarningsResult(calculation) {
             const emptyTrip = document.getElementById('empty-trip').checked;
             const costPriceLine = document.getElementById('cost-price-line');
@@ -756,7 +747,7 @@
             document.getElementById('history-section').style.display = 'block';
             document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
         }
-        
+
         function updateHistoryList(history) {
             const historyList = document.getElementById('history-list');
             historyList.innerHTML = '';
@@ -776,8 +767,13 @@
                     `;
                 }
                 historyItem.onclick = () => {
-                    document.getElementById('mode-switch').checked = item.mode === 'earn';
-                    toggleMode();
+                    const modeInputs = document.getElementsByName('mode');
+                    modeInputs.forEach(input => {
+                        if (input.value === item.mode) {
+                            input.checked = true;
+                        }
+                    });
+                    toggleMode(item.mode);
                     fillForm(item);
                     if (item.mode === 'earn') {
                         showEarningsResult(item);
