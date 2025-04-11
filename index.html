@@ -279,7 +279,7 @@
             <div id="day-summary-fields" style="display: none;">
                 <div class="form-row">
                     <div class="form-group" style="flex: 1;">
-                        <label for="yandex-earnings">Заработок по Яндексу (руб):</label>
+                        <label for="yandex-earnings">Заработок по агрегатору (руб):</label>
                         <input type="number" id="yandex-earnings" placeholder="Введите сумму" step="0.01">
                     </div>
                     <div class="form-group" style="flex: 1;">
@@ -579,6 +579,7 @@
             const fuelConsumption = parseFloat(document.getElementById('fuelConsumption').value);
             const fuelPrice = parseFloat(document.getElementById('fuelPrice').value);
             const depreciation = parseFloat(document.getElementById('depreciation').value);
+            const additionalCosts = parseFloat(document.getElementById('additionalCosts').value) || 0;
             const yandexEarnings = parseFloat(document.getElementById('yandex-earnings').value);
             const orderCount = parseInt(document.getElementById('order-count').value);
             const startTime = document.getElementById('start-time').value;
@@ -600,7 +601,7 @@
 
             const fuelCost = (fuelConsumption / 100) * distance * fuelPrice;
             const depreciationCost = depreciation * distance;
-            const totalCost = fuelCost + depreciationCost;
+            const totalCost = fuelCost + depreciationCost + additionalCosts;
 
             const cleanEarnings = yandexEarnings - totalCost;
             const cleanHourly = cleanEarnings / workHours;
@@ -760,10 +761,15 @@
                         <div>${new Date(item.timestamp).toLocaleString()}</div>
                         <div><strong>${item.distance} км${emptyTripText} (${item.tripPrice.toFixed(2)} ₽)</strong> → Чистый заработок: <strong>${item.netEarnings.toFixed(2)} ₽</strong></div>
                     `;
-                } else {
+                } else if (item.mode === 'cost') {
                     historyItem.innerHTML = `
                         <div>${new Date(item.timestamp).toLocaleString()}</div>
                         <div><strong>${item.distance} км${emptyTripText}</strong> → Себестоимость: <strong>${item.totalCost.toFixed(2)} ₽</strong></div>
+                    `;
+                } else if (item.mode === 'day-summary') {
+                    historyItem.innerHTML = `
+                        <div>${new Date(item.timestamp).toLocaleString()}</div>
+                        <div><strong>Итоги дня</strong>: Чистыми <strong>${(item.yandexEarnings - item.totalCost).toFixed(2)} ₽</strong>, Заявок: <strong>${item.orderCount}</strong></div>
                     `;
                 }
                 historyItem.onclick = () => {
@@ -777,7 +783,7 @@
                     fillForm(item);
                     if (item.mode === 'earn') {
                         showEarningsResult(item);
-                    } else {
+                    } else if (item.mode === 'cost') {
                         showCostResult(item);
                     }
                 };
