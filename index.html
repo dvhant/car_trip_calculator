@@ -431,14 +431,17 @@
             const fuelPrice = parseFloat(document.getElementById('fuelPrice').value);
             const depreciation = parseFloat(document.getElementById('depreciation').value);
             const additionalCosts = parseFloat(document.getElementById('additionalCosts').value) || 0;
+
             if (isNaN(distance) || isNaN(fuelConsumption) || isNaN(fuelPrice) || isNaN(depreciation)) {
                 alert("Заполните все основные поля!");
                 return;
             }
+
             const effectiveDistance = document.getElementById('empty-trip')?.checked ? distance * 2 : distance;
             const fuelCost = (fuelConsumption / 100) * effectiveDistance * fuelPrice;
             const depreciationCost = depreciation * effectiveDistance;
             const totalCost = fuelCost + depreciationCost + additionalCosts;
+
             const calculation = {
                 mode: 'cost',
                 distance,
@@ -451,6 +454,7 @@
                 totalCost,
                 timestamp: new Date().getTime()
             };
+
             saveCalculation(calculation);
             showCostResult(calculation);
         }
@@ -465,11 +469,13 @@
             const tripPrice = parseFloat(document.getElementById('tripPrice').value);
             const commissionRate = parseFloat(document.getElementById('commission').value);
             const isLegalEntity = document.getElementById('entity-switch').checked;
+
             if (isNaN(distance) || isNaN(fuelConsumption) || isNaN(fuelPrice) || isNaN(depreciation) ||
                 isNaN(tripPrice) || isNaN(commissionRate)) {
                 alert("Заполните все необходимые поля!");
                 return;
             }
+
             const effectiveDistance = emptyTrip ? distance * 2 : distance;
             const fuelCost = (fuelConsumption / 100) * effectiveDistance * fuelPrice;
             const depreciationCost = depreciation * effectiveDistance;
@@ -478,6 +484,7 @@
             const taxRate = isLegalEntity ? 6 : 4;
             const taxCost = tripPrice * (taxRate / 100);
             const netEarnings = tripPrice - commissionCost - taxCost - costPrice;
+
             const calculation = {
                 mode: 'earn',
                 distance,
@@ -497,6 +504,7 @@
                 netEarnings,
                 timestamp: new Date().getTime()
             };
+
             saveCalculation(calculation);
             showEarningsResult(calculation);
         }
@@ -569,6 +577,7 @@
                     <li><strong>Итого: ${totalCost} ₽</strong></li>
                 </ul>
             `;
+
             document.getElementById('cost-result').innerHTML = resultHtml;
             document.getElementById('cost-result').style.display = 'block';
             document.getElementById('earn-result').style.display = 'none';
@@ -580,7 +589,7 @@
         function showEarningsResult(calculation) {
             const emptyTrip = document.getElementById('empty-trip').checked;
             const costPriceLine = document.getElementById('cost-price-line');
-            
+
             if (emptyTrip) {
                 costPriceLine.innerHTML = `
                     <strong>Себестоимость (обратно пустым): 
@@ -620,6 +629,7 @@
                 const historyItem = document.createElement('div');
                 historyItem.className = 'history-item';
                 const emptyTripText = item.emptyTrip ? " (обратно пустым)" : "";
+
                 if (item.mode === 'earn') {
                     historyItem.innerHTML = `
                         <div>${new Date(item.timestamp).toLocaleString()}</div>
@@ -631,6 +641,7 @@
                         <div><strong>${item.distance} км${emptyTripText}</strong> → Себестоимость: <strong>${item.totalCost.toFixed(2)} ₽</strong></div>
                     `;
                 }
+
                 historyItem.onclick = () => {
                     document.getElementById('mode-switch').checked = item.mode === 'earn';
                     toggleMode();
@@ -641,6 +652,7 @@
                         showCostResult(item);
                     }
                 };
+
                 historyList.appendChild(historyItem);
             });
         }
